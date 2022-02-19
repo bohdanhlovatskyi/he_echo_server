@@ -56,7 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} async.cpp)
+add_executable(${PROJECT_NAME} blocking_tcp_echo_server.cpp)
 
 set_target_properties(
 		${PROJECT_NAME}
