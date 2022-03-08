@@ -47,3 +47,20 @@ socket.shutdown(asio::socket_base::shutdown_send) // we won't send any new info
 ```
 - no need to explicitly close the socket as the destructor will do this automatically
 
+## Implementing server applications
+
+### Synchronous server
+- push-style communication
+- pseudo parallelism
+- synchronous servers are exposed to bad network connection, as they may cause hangs through web
+- synchronous ops cancellation: polling on stop conditions 
+- dummpy request to make acc.Accept() method unblock and then terminate server 
+- nonblocking sockets - reactive
+- synchronous servers are vulnerable to such hangings
+
+### Synchronous parallel TCP server
+- it seems that the book is written poorly, and the whole problem is about graceful shutdown ? 
+
+### Asynchronous TCP server
+- Spawn one or more threads of control and add them to the pool of threads that run the Boost.Asio event loop.
+ 
