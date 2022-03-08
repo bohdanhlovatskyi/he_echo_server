@@ -58,11 +58,11 @@ include(cmake/CompilerWarnings.cmake)
 
 add_executable(${PROJECT_NAME} async.cpp)
 
-set_target_properties(
-		${PROJECT_NAME}
-		PROPERTIES
-		COMPILE_DEFINITIONS DEBUG_INFO=true
-)
+# set_target_properties(
+# 		${PROJECT_NAME}
+# 		PROPERTIES
+# 		COMPILE_DEFINITIONS DEBUG_INFO=true
+# )
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE options_parser)

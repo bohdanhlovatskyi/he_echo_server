@@ -1,44 +1,46 @@
-<mark>Template for your README. Remove all unused parts and instructions</mark>
+# High efficiency echo-server
+team:
+- bohdan hlovatskyi: https://github.com/bohdanhlovatskyi
+- sasha tsepilova: https://github.com/sasha-tsepilova
+- mykhailo pasichnyk: https://github.com/fox-flex
+- yaroslav romanus: https://github.com/yarkoslav
 
-# Lab work <mark>NUMBER</mark>: <mark>SHORT TOPIC</mark>
-Authors (team): <mark>AUTHORS WITH GITHUB LINKS</mark><br>
-Variant: <mark>VARIANT SHOULD BE HERE</mark>
 ## Prerequisites
 
-<mark>LIST LIBRARIES/TOOLS/OTHER UTILITIES THAT NEED TO BE INSTALLED (E.G. GCC, OPENMP, CMAKE ETC)</mark>
+- jmeter and bzt (```pip install bzt```) for testing
+- c++17 or greater
 
 ### Compilation
 
-<mark>HOW TO COMPILE YOUR PROGRAM? (RECOMMENDED: ./comile.sh)</mark>
+```bat
+mkdir build
+cmake .. && make
+./type_of_server [port]
+```
 
-### Installation
+### Testing
 
-<mark>DESCRIBE THE INSTALLATION PROCESS (USE ./dependencies FOLDER)</mark>
+```bat
+cd testing_util
 
-<mark>Note: For Python scripts, You must add `requirenments.txt` 
-file and add your env to the `.gitignore` file!</mark>
+bzt config.yaml
+```
+Note that config.yaml has following scenario:
+```yaml
+scenarios:
+  with_script:
+    script: tcp_samples.jmx
+```
+This *.jmx file can be generated directly via JMeter (the only way I found to test tcp loading via Taurus)
 
-### Usage
-
-<mark>PROVIDE AN EXAMPLE OF HOW TO RUN YOUR PROGRAM (IT CAN BE A_flag COMMAND LINE WITH INPUT AND EXPECTED OUTPUT)</mark>
-
-<mark>Note: if your project needs or generates any data, media and so on -- put them
-into the data folder</mark> 
-
-### Important!
-
-<mark>WHAT ELSE SHOULD WE KNOW ABOUT YOUR WORK? (E.G. KNOWN ISSUES, BUGS, SPECIAL BEHAVIOR ETC)</mark>
-
-### Results
-
-<mark>DESCRIBE THE RESULTS OF THE WORK YOU DID. WHAT DID YOU LEARN OR FIND INTERESTING?</mark>
-
-# Additional tasks
-<mark>IF APPLICABLE, LIST ALL THE EXTRA FEATURES YOU ADDED. PROVIDE DETAILS<mark>
-
-# ATTENTION!
-  
-Additional tasks not listed in the previous paragraph would not be graded.
-
-Be sure to provide a complete list of authors.
+## Todo:
+- Apache JMeter Distributed Testing (https://jmeter.apache.org/usermanual/jmeter_distributed_testing_step_by_step.html)
+- Read on: **Thransaction Throughput vs Threads** metric 
+- Fix **blocking_tcp_echo_server.cpp** (immediate shutdown)
+- Other types of servers:
+  - Synchronous
+  - Coroutines based 
+  - Multi-process
+  - Plain sockets
+  - ...
 
