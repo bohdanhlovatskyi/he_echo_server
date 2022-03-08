@@ -47,30 +47,25 @@ public:
                                      boost::bind(&session::handle_write, this,
                                                  boost::asio::placeholders::error));
         } else {
-#ifdef DEBUG_INFO
-            std::cout << "Session was killed..." << std::endl;
-#endif
             delete this;
         }
     }
 
     void handle_write(const boost::system::error_code& error)
     {
-        if (!error) {
-            socket_.async_read_some(boost::asio::buffer(data_, max_length),
-                                    boost::bind(&session::handle_read, this,
-                                                boost::asio::placeholders::error,
-                                                boost::asio::placeholders::bytes_transferred));
-#ifdef DEBUG_INFO
-            std::cout << "Session was continued..." << std::endl;
-#endif
-        } else {
+        // deletes the session after echoing...
+        if (error) {
             delete this;
         }
+
+        socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+        socket_.close();
     }
 
 private:
     tcp::socket socket_;
+    // note the importance of this, all the messages larget than 1024
+    // will be cropped
     enum { max_length = 1024 };
     char data_[max_length];
 };
