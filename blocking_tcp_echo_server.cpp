@@ -24,25 +24,23 @@ typedef boost::shared_ptr<tcp::socket> socket_ptr;
 
 void session(socket_ptr sock) {
     try {
-        for (;;) {
-            char data[max_length];
+        char data[max_length];
 
-            boost::system::error_code error;
-            size_t length = sock->read_some(boost::asio::buffer(data), error);
+        boost::system::error_code error;
+        size_t length = sock->read_some(boost::asio::buffer(data), error);
 
 #ifdef DEBUG_INFO
-            std::cout << "New session was created: [" << sock->remote_endpoint().address() << \
-            ", " << sock->remote_endpoint().port() << "]" << std::endl;
+        std::cout << "New session was created: [" << sock->remote_endpoint().address() << \
+        ", " << sock->remote_endpoint().port() << "]" << std::endl;
 #endif
-            if (error == boost::asio::error::eof) {
-                break; // Connection closed cleanly by peer.
-            } else if (error) {
-                throw boost::system::system_error(error);
-            }
-
-            // TODO: read one sock->write
-            boost::asio::write(*sock, boost::asio::buffer(data, length));
+        if (error && error != boost::asio::error::eof) {
+            throw boost::system::system_error(error);
         }
+
+        boost::asio::write(*sock, boost::asio::buffer(data, length));
+        sock->shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+        sock->close();
+
     } catch (std::exception& e) {
         std::cerr << "Exception in thread: " << e.what() << "\n";
     }

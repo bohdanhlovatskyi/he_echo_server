@@ -36,7 +36,6 @@ This *.jmx file can be generated directly via JMeter (the only way I found to te
 ## Todo:
 - Apache JMeter Distributed Testing (https://jmeter.apache.org/usermanual/jmeter_distributed_testing_step_by_step.html)
 - Read on: **Thransaction Throughput vs Threads** metric 
-- Fix **blocking_tcp_echo_server.cpp** (immediate shutdown)
 - Other types of servers:
   - Synchronous
   - Coroutines based 

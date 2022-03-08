@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 
 #! CHANGE YOUR PROJECT NAME
 #  It is used as your project's main executable name. 
-set(PROJECT_NAME async)
+set(PROJECT_NAME blocking)
 project(${PROJECT_NAME} C CXX) # project(${PROJECT_NAME} C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -56,7 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} async.cpp)
+add_executable(${PROJECT_NAME} blocking_tcp_echo_server.cpp)
 
 # set_target_properties(
 # 		${PROJECT_NAME}
