@@ -56,7 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} async_multithread.cpp)
+add_executable(${PROJECT_NAME} plain_sockets/select.cpp)
 
 # set_target_properties(
 # 		${PROJECT_NAME}

@@ -11,8 +11,6 @@
 #include <array>
 
 constexpr short SERVER_PORT = 9000;
-
-constexpr short BACKLOG_SIZE = 16;
 constexpr short BUF_SIZE = 1024;
 
 int main(int argc, char* argv[]) {
@@ -31,7 +29,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    err = listen(listener, BACKLOG_SIZE);
+    err = listen(listener, SOMAXCONN);
     if (err < 0) {
         std::cerr << "Listener could not start to listen" << std::endl;
         exit(1);
@@ -47,14 +45,17 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
-        // [TODO]: consider using some flags
+
         int bytes_read = 1;
         // [TODO]: consider sort of while loop
-            bytes_read = recv(socket_descriptor, &buf, BUF_SIZE, 0);
-            if (bytes_read > 0) {
-                send(socket_descriptor, buf.cbegin(), bytes_read, 0);
-            }
+        // MSG_DONTWAIT - not standard verbose, use fcntl()
+        bytes_read = recv(socket_descriptor, &buf, BUF_SIZE, 0);
+        if (bytes_read > 0) {
+            send(socket_descriptor, buf.cbegin(), bytes_read, 0);
+        }
 
+        // [TODO]: works on kernel descriptors, thus affcets
+        // all the descriptors of the process (???????)
         err = shutdown(socket_descriptor, SHUT_RDWR);
         if (err < 0) {
             std::cerr << "Error shutting down a socket" << std::endl;
