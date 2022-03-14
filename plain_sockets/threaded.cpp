@@ -9,11 +9,31 @@
 
 #include <iostream>
 #include <array>
+#include <thread>
 
 constexpr short SERVER_PORT = 9000;
-
-constexpr short BACKLOG_SIZE = 16;
 constexpr short BUF_SIZE = 1024;
+
+void handle_connection(int sd) {
+    int bytes_read = 1;
+    std::array<char, BUF_SIZE> buf{{}};
+    // [TODO]: consider sort of while loop
+    // MSG_DONTWAIT - not standard verbose, use fcntl()
+    bytes_read = recv(sd, &buf, BUF_SIZE, 0);
+    if (bytes_read > 0) {
+        send(sd, buf.cbegin(), bytes_read, 0);
+    }
+
+    // [TODO]: works on kernel descriptors, thus affcets
+    // all the descriptors of the process (???????)
+    int err = shutdown(sd, SHUT_RDWR);
+    if (err < 0) {
+        std::cerr << "Error shutting down a socket" << std::endl;
+    }
+
+    close(sd);
+}
+
 
 int main(int argc, char* argv[]) {
     struct sockaddr_in sin;
@@ -31,13 +51,12 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    err = listen(listener, BACKLOG_SIZE);
+    err = listen(listener, SOMAXCONN);
     if (err < 0) {
         std::cerr << "Listener could not start to listen" << std::endl;
         exit(1);
     }
 
-    std::array<char, BUF_SIZE> buf{{}};
     for (;;) {
         struct sockaddr_storage ss;
         socklen_t slen = sizeof(ss);
@@ -46,29 +65,6 @@ int main(int argc, char* argv[]) {
             std::cerr << "Error accepting request" << std::endl;
             exit(1);
         }
-
-        if (fork() == 0) {
-            close(listener);
-            std::cout << "[INFO]: process forked " << std::endl;
-            // [TODO]: consider using some flags
-            int bytes_read = 1;
-            // [TODO]: consider sort of while loop
-            bytes_read = recv(socket_descriptor, &buf, BUF_SIZE, 0);
-            if (bytes_read > 0) {
-                send(socket_descriptor, buf.cbegin(), bytes_read, 0);
-            }
-
-            err = shutdown(socket_descriptor, SHUT_RDWR);
-            if (err < 0) {
-                std::cerr << "Error shutting down a socket" << std::endl;
-            }
-
-            close(socket_descriptor);
-            exit(0);
-        } else {
-            // we can also send error message using this socket descriptor to the client
-            close(socket_descriptor);
-            // [TODO] : check where socket is allocated(we two times close it)
-        }
+        std::thread thread(handle_connection, socket_descriptor);
     }
 }

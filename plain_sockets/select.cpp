@@ -12,6 +12,7 @@
 #include <iostream>
 #include <array>
 #include <cerrno>
+#include <cstring>
 
 constexpr short SERVER_PORT = 9000;
 constexpr short BUF_SIZE = 1024;
