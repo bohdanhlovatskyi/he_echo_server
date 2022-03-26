@@ -65,6 +65,8 @@ int main(int argc, char* argv[]) {
             std::cerr << "Error accepting request" << std::endl;
             exit(1);
         }
-        std::thread thread(handle_connection, socket_descriptor);
+
+        std::thread t(handle_connection, socket_descriptor);
+        t.detach();
     }
 }
