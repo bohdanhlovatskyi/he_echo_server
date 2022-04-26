@@ -11,7 +11,7 @@
 #include <array>
 #include <thread>
 
-constexpr short SERVER_PORT = 9000;
+constexpr short SERVER_PORT = 9001;
 constexpr short BUF_SIZE = 1024;
 
 void handle_connection(int sd) {
@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
             std::cerr << "Error accepting request" << std::endl;
             exit(1);
         }
-        std::thread thread(handle_connection, socket_descriptor);
+        std::thread t(handle_connection, socket_descriptor);
+        t.detach();
     }
 }
