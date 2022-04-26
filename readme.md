@@ -34,20 +34,24 @@ scenarios:
 This *.jmx file can be generated directly via JMeter (the only way I found to test tcp loading via Taurus)
 
 ## Methods
-- syncronous sequential
-- asynchronous single-threaded
-    - diff combiinations of read/write ?
-- synchronous multithreaded
-- synchronous multiprocess
-- asyncronous multithreaded
+
+boost::asio based:
+    - syncronous sequential
+    - asynchronous single-threaded
+    - synchronous multithreade
+    - asyncronous multithreaded
+
+plain sockets:
+    - simple syncrhonous
+    - multiprocess
+    - select based (simple threaded async)
 
 ## Todo:
+- !!! First and foremost: extensive code-review before moving on
 - Apache JMeter Distributed Testing (https://jmeter.apache.org/usermanual/jmeter_distributed_testing_step_by_step.html)
 - Read on: **Thransaction Throughput vs Threads** metric 
 - Other types of servers:
-  - Synchronous
-  - Coroutines based 
-  - Multi-process
-  - Plain sockets
-  - ...
+  - Coroutines based
+  - epoll / io-select and so on - different ways of async io
+  - multithreaded plain sockets realisations
 
