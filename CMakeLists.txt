@@ -68,9 +68,9 @@ find_package(Boost 1.71.0 COMPONENTS system thread regex REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} Boost::system Boost::thread Boost::regex)
 
-						
+
 ##########################################################
-# Fixed CMakeLists.txt part 
+# Fixed CMakeLists.txt part
 ##########################################################
 
 INSTALL(PROGRAMS
