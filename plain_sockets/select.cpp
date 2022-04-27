@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
         }
 
         // null ptr - blocks
-        err = select(max_fd + 1, &read_set, &write_set, &ex_set, NULL);
+        err = select(max_fd + 1, &read_set, &write_set, &ex_set, NULL);//syscall not like winda( Fara stattya. Stromno KQueL
         if (err < 0) {
             std::cerr << "select err: " << std::strerror(errno) << std::endl;
             exit(1);
