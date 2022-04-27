@@ -99,8 +99,9 @@ int main() {
                     exit(1);
                 }
             } else {
-                recv(events[i].data, &buf, BUF_SIZE, 0);
-                send(events[i].data, &buf, BUF_SIZE, 0);
+                auto bytes_read = recv(events[i].data, &buf, BUF_SIZE, 0);
+                buf[bytes_read] = '\0';
+                send(events[i].data, &buf, bytes_read, 0);
                 close(events[i].data);
             }
         }

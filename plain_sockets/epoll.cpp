@@ -48,12 +48,9 @@ int main() {
                 // adding new socket to epoll interest list
                 epoll_ctl_add(epfd, socket_descriptor, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP);
             } else if (events[i].events & EPOLLIN) {
-                recv(events[i].data.fd, &buf, BUF_SIZE, 0);
-                auto socket_descriptor = events[i].data.fd;
-                err = epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
-                epoll_ctl_add(epfd, socket_descriptor, EPOLLOUT | EPOLLET | EPOLLRDHUP | EPOLLHUP);
-            } else if (events[i].events & EPOLLOUT) {
-                send(events[i].data.fd, &buf, BUF_SIZE, 0);
+                auto bytes_read = recv(events[i].data.fd, &buf, BUF_SIZE, 0);
+                buf[bytes_read] = '\0';
+                send(events[i].data.fd, &buf, bytes_read, 0);
                 err = epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
                 close(events[i].data.fd);
             } else if (events[i].events & (EPOLLRDHUP | EPOLLHUP)) {

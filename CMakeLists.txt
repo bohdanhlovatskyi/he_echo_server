@@ -56,7 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} plain_sockets/io_submit.cpp
+add_executable(${PROJECT_NAME} plain_sockets/epoll.cpp
 		plain_sockets/common_sockets.hpp plain_sockets/common_sockets.cpp)
 
 #! Put path to your project headers
