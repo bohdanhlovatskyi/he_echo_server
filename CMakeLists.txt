@@ -56,16 +56,11 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} plain_sockets/select.cpp)
-
-# set_target_properties(
-# 		${PROJECT_NAME}
-# 		PROPERTIES
-# 		COMPILE_DEFINITIONS DEBUG_INFO=true
-# )
+add_executable(${PROJECT_NAME} plain_sockets/io_submit.cpp
+		plain_sockets/common_sockets.hpp plain_sockets/common_sockets.cpp)
 
 #! Put path to your project headers
-target_include_directories(${PROJECT_NAME} PRIVATE options_parser)
+target_include_directories(${PROJECT_NAME} PRIVATE plain_sockets)
 
 #! Add external packages
 # options_parser requires boost::program_options library
