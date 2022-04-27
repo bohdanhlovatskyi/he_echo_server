@@ -56,7 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} plain_sockets/select.cpp)
+add_executable(${PROJECT_NAME} boost_based/async.cpp windows_sockets/select.cpp)
 
 # set_target_properties(
 # 		${PROJECT_NAME}
