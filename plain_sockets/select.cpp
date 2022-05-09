@@ -2,7 +2,16 @@
 /*
  * As there is no C++ socket API, we will stick to the C POSIX API
  */
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/select.h>
 
+#include <iostream>
+#include <array>
+#include <cerrno>
+#include <cstring>
 constexpr short SERVER_PORT = 9000;
 constexpr short BUF_SIZE = 1024;
 

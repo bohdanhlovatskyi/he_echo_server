@@ -1,7 +1,6 @@
 //
 // Created by yarmus on 4/26/22.
 //
-#include <sys/socket.h>
 #include <unistd.h>
 #include <poll.h>
 #include <linux/aio_abi.h>
@@ -43,20 +42,15 @@ int main() {
     std::array<char, BUF_SIZE> buf{{}};
     auto listener = create_listener(false, SERVER_PORT);
 
-    auto err = listen(listener, SOMAXCONN);
-    if (err < 0) {
-        std::cerr << "Listener could not start to listen" << std::endl;
-        exit(1);
-    }
-
     aio_context_t ctx;
     ctx = 0;
     struct iocb cb_listener, cb_client;
     struct iocb *cbs_for_listener[1];
+    struct iocb *cbs_for_client[1];
     struct iocb *cbs_for_listener_and_client[2];
 
     // I'm suspicious about first argument
-    err = io_setup(MAX_EVENTS, &ctx);
+    auto err = io_setup(MAX_EVENTS, &ctx);
     if (err < 0) {
         std::cerr << "Cannot setup AIO" << err << std::endl;
         exit(1);
@@ -99,10 +93,22 @@ int main() {
                     exit(1);
                 }
             } else {
-                auto bytes_read = recv(events[i].data, &buf, BUF_SIZE, 0);
-                buf[bytes_read] = '\0';
-                send(events[i].data, &buf, bytes_read, 0);
-                close(events[i].data);
+                auto bytes_read = read_msg(events[i].data, buf.data(), BUF_SIZE);
+                if (bytes_read > 0) {
+                    std::cout << "input msg: " << buf.data() << std::endl;
+                    write_msg(events[i].data, buf.data(), bytes_read);
+
+                    // submitting the same client
+                    create_iocb(cb_client, events[i].data);
+                    cbs_for_client[0] = &cb_client;
+                    err = io_submit(ctx, 1, cbs_for_client);
+                    if (err < 0) {
+                        std::cerr << "Cannot submit listener and new client" << std::endl;
+                        exit(1);
+                    }
+                } else {
+                    close(events[i].data);
+                }
             }
         }
     }

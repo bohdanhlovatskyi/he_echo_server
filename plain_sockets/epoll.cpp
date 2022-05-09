@@ -46,6 +46,9 @@ int main() {
                 if (bytes_read > 0) {
                     std::cout << "input msg: " << buf.data() << std::endl;
                     write_msg(events[i].data.fd, buf.data(), bytes_read);
+                } else {
+                    epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
+                    close(events[i].data.fd);
                 }
             } else if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
                 epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
