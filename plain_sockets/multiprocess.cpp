@@ -28,17 +28,15 @@ void BlockingMultiProcess::run() {
             for (;;) {
                 auto bytes_read = read_msg(sd, buf.data(), buf_size);
                 if (bytes_read > 0) {
+                    std::cout << "input msg: " << buf.data() << std::endl;
                     write_msg(sd, buf.data(), buf_size);
                 } else {
+                    // closing socket when error
+                    close(sd);
                     break;
                 }
             }
-
             exit(0);
-        } else {
-            // Note that we can also send error message using this socket descriptor to the client
-            close(sd);
-            // [TODO] : check where socket is allocated(we two times close it)
         }
     }
 }
