@@ -5,8 +5,34 @@
 #include <iostream>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include "common_sockets.hpp"
 
+
+ssize_t read_msg(int sd, char* buf, ssize_t buf_size) {
+    ssize_t read_data;
+    read_data = read(sd, buf, buf_size);
+    if (read_data < 0)
+        return read_data;
+    if (read_data >= 0) {
+        buf[read_data] = '\0';
+    }
+    return read_data;
+}
+
+ssize_t write_msg(int sd, const char* buf, ssize_t msg_size) {
+    ssize_t already_written = 0;
+    ssize_t written_now;
+
+    while(already_written < msg_size) {
+        written_now = write(sd, buf + already_written, msg_size - already_written);
+        if (written_now < 0)
+            // correspond to error in writing
+            return written_now;
+        already_written += written_now;
+    }
+    return already_written;
+}
 
 int handle_connection(int listener, bool is_blocking) {
     struct sockaddr_storage ss;
@@ -48,6 +74,12 @@ int create_listener(bool is_blocking, int SERVER_PORT) {
     // making listener nonblocking
     if (!is_blocking)
         fcntl(listener, F_SETFL, O_NONBLOCK);
+
+    err = listen(listener, SOMAXCONN);
+    if (err < 0) {
+        std::cerr << "Listener could not start to listen" << std::endl;
+        exit(1);
+    }
 
     return listener;
 }

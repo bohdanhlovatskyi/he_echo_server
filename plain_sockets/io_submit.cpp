@@ -105,7 +105,6 @@ int main() {
                 close(events[i].data);
             }
         }
-
     }
     io_destroy(ctx);
 }

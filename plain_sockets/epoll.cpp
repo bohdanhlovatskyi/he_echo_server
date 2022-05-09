@@ -19,12 +19,6 @@ int main() {
     std::array<char, BUF_SIZE> buf{{}};
     auto listener = create_listener(false, SERVER_PORT);
 
-    auto err = listen(listener, SOMAXCONN);
-    if (err < 0) {
-        std::cerr << "Listener could not start to listen" << std::endl;
-        exit(1);
-    }
-
     int epfd = epoll_create(1);
     if (epfd == -1) {
         std::cerr << "We cannot create epoll instance" << std::endl;
@@ -46,14 +40,14 @@ int main() {
                 auto socket_descriptor = handle_connection(listener, false);
 
                 // adding new socket to epoll interest list
-                epoll_ctl_add(epfd, socket_descriptor, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP);
+                epoll_ctl_add(epfd, socket_descriptor, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR);
             } else if (events[i].events & EPOLLIN) {
-                auto bytes_read = recv(events[i].data.fd, &buf, BUF_SIZE, 0);
-                buf[bytes_read] = '\0';
-                send(events[i].data.fd, &buf, bytes_read, 0);
-                err = epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
-                close(events[i].data.fd);
-            } else if (events[i].events & (EPOLLRDHUP | EPOLLHUP)) {
+                auto bytes_read = read_msg(events[i].data.fd, buf.data(), BUF_SIZE);
+                if (bytes_read > 0) {
+                    std::cout << "input msg: " << buf.data() << std::endl;
+                    write_msg(events[i].data.fd, buf.data(), bytes_read);
+                }
+            } else if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
                 epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
                 close(events[i].data.fd);
             }
