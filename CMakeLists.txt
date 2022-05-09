@@ -56,12 +56,19 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} main.cpp
+set(SOURCES main.cpp
 		plain_sockets/syncronous.cpp
 		plain_sockets/threaded.cpp
 		plain_sockets/multiprocess.cpp
 		plain_sockets/select.cpp
 		plain_sockets/common_sockets.cpp)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_executable(${PROJECT_NAME} ${SOURCES} epoll.cpp)
+else()
+	add_executable(${PROJECT_NAME} ${SOURCES})
+endif ()
+
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE plain_sockets)

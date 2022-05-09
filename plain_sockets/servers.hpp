@@ -86,4 +86,26 @@ public:
     ~AsyncSelect() = default;
 };
 
+
+#ifdef __linux__
+#include <sys/epoll.h>
+
+class AsyncEpoll: public Server {
+private:
+    constexpr static short MAX_EVENTS = 32;
+    struct epoll_event events[MAX_EVENTS];
+
+    void epoll_ctl_add(int epfd, int fd, uint32_t events);
+
+public:
+    using Server::Server;
+
+    void init() override;
+    void run() override;
+
+    ~AsyncEpoll() = default;
+};
+
+#endif // __linux__
+
 #endif // SERVERTS_
