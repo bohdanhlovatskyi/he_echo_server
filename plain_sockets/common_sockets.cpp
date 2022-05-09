@@ -1,13 +1,8 @@
 //
 // Created by yarmus on 4/27/22.
 //
-#include <sys/socket.h>
-#include <iostream>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include "common_sockets.hpp"
 
+#include "common_sockets.hpp"
 
 ssize_t read_msg(int sd, char* buf, ssize_t buf_size) {
     ssize_t read_data;
@@ -35,12 +30,14 @@ ssize_t write_msg(int sd, const char* buf, ssize_t msg_size) {
 }
 
 int handle_connection(int listener, bool is_blocking) {
+    assert(listener != 0 || listener != -1);
+
     struct sockaddr_storage ss;
     socklen_t slen = sizeof(ss);
     auto socket_descriptor = accept(listener, (struct sockaddr *) &ss, &slen);
     if (socket_descriptor < 0) {
-        std::cerr << "Error accepting request" << std::endl;
-        exit(1);
+        std::cerr << std::strerror(errno) << std::endl;
+        throw std::runtime_error{"listener : handle connection : Error accepting request"};
     }
     if (!is_blocking) {
         // making socket nonblocking
@@ -57,29 +54,35 @@ int create_listener(bool is_blocking, int SERVER_PORT) {
     // convert into big endian byte order
     sin.sin_port = htons(SERVER_PORT);
     auto listener = socket(AF_INET, SOCK_STREAM, 0);
-    auto err = fcntl(listener, F_SETFL, O_NONBLOCK);
-    if (err < 0) {
-        std::cerr << "Could not make the listener socket non-blocking" << std::endl;
-        exit(1);
-    }
 
     auto on = 1;
     setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    err = bind(listener, (struct sockaddr* ) &sin, sizeof(sin));
+    auto err = bind(listener, (struct sockaddr* ) &sin, sizeof(sin));
     if (err < 0) {
-        std::cerr << "Could not bind a listener socket" << std::endl;
-        exit(1);
+        throw std::runtime_error{"Could not bind a listener socket"};
     }
 
     // making listener nonblocking
-    if (!is_blocking)
-        fcntl(listener, F_SETFL, O_NONBLOCK);
+    if (!is_blocking) {
+        auto err = fcntl(listener, F_SETFL, O_NONBLOCK);
+        if (err < 0) {
+            throw std::runtime_error{"Could not make the listener socket non-blocking"};
+        }
+    }
 
     err = listen(listener, SOMAXCONN);
     if (err < 0) {
-        std::cerr << "Listener could not start to listen" << std::endl;
-        exit(1);
+        throw std::runtime_error{"Listener could not start to listen"};
     }
 
     return listener;
+}
+
+void clean_up(int sd) {
+    auto err = shutdown(sd, SHUT_RDWR);
+    if (err < 0) {
+        std::cerr << "Error shutting down a socket" << std::endl;
+    }
+
+    close(sd);
 }

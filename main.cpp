@@ -3,6 +3,8 @@
 
 #include "servers.hpp"
 
+constexpr ssize_t BUF_SIZE = 1024;
+
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         std::cerr << "Usage: start_server <port> <method>\n";
@@ -15,7 +17,9 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    std::vector<Server *> servers = {new Syncronous{port}};
+    std::vector<Server *> servers = {new Syncronous{port, BUF_SIZE},
+                                     new BlockingMultiThreaded{port, BUF_SIZE},
+                                     };
 
     auto method = std::atoi(argv[2]);
     if (method < 0 || static_cast<size_t>(method) >= servers.size()) {

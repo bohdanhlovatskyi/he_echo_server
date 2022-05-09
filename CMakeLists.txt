@@ -56,8 +56,10 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-add_executable(${PROJECT_NAME} plain_sockets/select.cpp
-		plain_sockets/common_sockets.cpp plain_sockets/common_sockets.hpp)
+add_executable(${PROJECT_NAME} main.cpp
+		plain_sockets/syncronous.cpp
+		plain_sockets/threaded.cpp
+		plain_sockets/common_sockets.cpp)
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE plain_sockets)
