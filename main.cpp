@@ -19,8 +19,10 @@ int main(int argc, char* argv[]) {
 
     std::vector<Server *> servers = {new Syncronous{port, BUF_SIZE},
                                      new BlockingMultiThreaded{port, BUF_SIZE},
-                                     new BlockingMultiProcess{port, BUF_SIZE}};
+                                     new BlockingMultiProcess{port, BUF_SIZE},
+                                     new AsyncSelect{port, BUF_SIZE}};
 
+    // TODO: atoi could return 0
     auto method = std::atoi(argv[2]);
     if (method < 0 || static_cast<size_t>(method) >= servers.size()) {
         std::cerr << "Fatal: Wrong method specified" << std::endl;
