@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <cassert>
+#include <cstring>
 
 #include "common_sockets.hpp"
 
@@ -57,6 +58,32 @@ public:
     void run() override;
 
     ~BlockingMultiProcess() = default;
+};
+
+class AsyncSelect: public Server {
+private:
+    fd_set read_set, write_set, ex_set;
+
+    struct fd_state {
+        std::vector<char> buf;
+        bool wr;
+        ssize_t bytes_read;
+        fd_state(): buf{}, wr{false}, bytes_read{0} {};
+        ~fd_state() = default;
+    };
+
+    fd_state* state[FD_SETSIZE];
+
+    ssize_t read_(int fd, fd_state* state);
+    ssize_t write_(int fd, fd_state* state);
+
+public:
+    using Server::Server;
+
+    void init() override;
+    void run() override;
+
+    ~AsyncSelect() = default;
 };
 
 #endif // SERVERTS_

@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <cassert>
 #include <cerrno>
