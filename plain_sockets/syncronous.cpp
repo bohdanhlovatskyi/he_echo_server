@@ -10,7 +10,7 @@
 
 #include "servers.hpp"
 
-Syncronous::Syncronous(size_t port): port{port} {
+void Syncronous::init() {
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = htonl(INADDR_ANY);

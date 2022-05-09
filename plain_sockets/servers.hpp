@@ -8,18 +8,26 @@
 #include <iostream>
 #include <array>
 
-class Syncronous {
-private:
-    const size_t port;
+class Server {
+protected:
     constexpr static short BUF_SIZE = 1024;
-
-    int listener_fd;
-    std::array<char, BUF_SIZE> buf{{}};
-
+    const size_t port;
 public:
-    explicit Syncronous(size_t port);
+    inline explicit Server(size_t port): port{port} {};
 
-    void run();
+    virtual void run() = 0;
+    virtual void init() = 0;
+};
+
+class Syncronous: public Server {
+private:
+    int listener_fd;
+    std::array<char, Server::BUF_SIZE> buf{{}};
+public:
+    using Server::Server;
+
+    void init() override;
+    void run() override;
 };
 
 

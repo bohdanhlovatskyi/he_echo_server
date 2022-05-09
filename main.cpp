@@ -1,9 +1,9 @@
 #include <iostream>
+#include <vector>
 
 #include "servers.hpp"
 
 int main(int argc, char* argv[]) {
-
     if (argc != 3) {
         std::cerr << "Usage: start_server <port> <method>\n";
         return 1;
@@ -15,13 +15,26 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
+    std::vector<Server *> servers = {new Syncronous{port}};
+
     auto method = std::atoi(argv[2]);
-    if (method == 1) {
-        Syncronous s{port};
-        s.run();
-    } else {
-        std::cerr << "Wrong method specialized" << std::endl;
-        exit(3);
+    if (method < 0 || static_cast<size_t>(method) >= servers.size()) {
+        std::cerr << "Fatal: Wrong method specified" << std::endl;
+        return 3;
+    }
+
+    try {
+        servers[method]->init();
+    } catch (std::runtime_error e) {
+        std::cerr << "Fatal: could not init server" << e.what() << std::endl;
+        return 4;
+    }
+
+    try {
+        servers[method]->run();
+    } catch (std::runtime_error e) {
+        std::cerr << "Fatal: " << e.what() << std::endl;
+        return 4;
     }
 
     return 0;
