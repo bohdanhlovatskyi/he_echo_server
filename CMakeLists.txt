@@ -59,6 +59,7 @@ include(cmake/CompilerWarnings.cmake)
 add_executable(${PROJECT_NAME} main.cpp
 		plain_sockets/syncronous.cpp
 		plain_sockets/threaded.cpp
+		plain_sockets/multiprocess.cpp
 		plain_sockets/common_sockets.cpp)
 
 #! Put path to your project headers

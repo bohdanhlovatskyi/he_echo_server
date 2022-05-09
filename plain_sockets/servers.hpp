@@ -49,5 +49,14 @@ public:
     ~BlockingMultiThreaded() = default;
 };
 
+class BlockingMultiProcess: public Server {
+public:
+    using Server::Server;
+
+    void init() override;
+    void run() override;
+
+    ~BlockingMultiProcess() = default;
+};
 
 #endif // SERVERTS_
