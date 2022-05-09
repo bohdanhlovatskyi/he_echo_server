@@ -1,7 +1,6 @@
 //
 // Created by yarmus on 4/26/22.
 //
-
 #include "common_sockets.hpp"
 #include "servers.hpp"
 
@@ -17,15 +16,15 @@ void AsyncEpoll::epoll_ctl_add(int epfd, int fd, uint32_t events) {
 }
 
 void AsyncEpoll::init() {
-    auto listener = create_listener(false, port);
+    listener_fd = create_listener(false, port);
 
-    int epfd = epoll_create(1);
+    epfd = epoll_create(1);
     if (epfd == -1) {
         std::cerr << "We cannot create epoll instance" << std::endl;
         exit(1);
     }
 
-    epoll_ctl_add(epfd, listener, EPOLLIN | EPOLLOUT | EPOLLET);
+    epoll_ctl_add(epfd, listener_fd, EPOLLIN | EPOLLOUT | EPOLLET);
 }
 
 void AsyncEpoll::run() {

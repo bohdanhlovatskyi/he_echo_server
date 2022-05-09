@@ -94,7 +94,7 @@ class AsyncEpoll: public Server {
 private:
     constexpr static short MAX_EVENTS = 32;
     struct epoll_event events[MAX_EVENTS];
-
+    int epfd;
     void epoll_ctl_add(int epfd, int fd, uint32_t events);
 
 public:
