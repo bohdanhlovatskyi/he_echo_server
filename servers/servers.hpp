@@ -160,7 +160,7 @@ public:
 
 class AsyncIOSubmit: public Server {
 private:
-    constexpr short MAX_EVENTS = 32;
+    static constexpr short MAX_EVENTS = 32;
 
     inline static long io_setup(unsigned nr, aio_context_t *ctxp) {
         return syscall(__NR_io_setup, nr, ctxp);
@@ -181,7 +181,7 @@ private:
 
     void create_iocb_(iocb& cb, int sd);
 
-    aio_context_t ctx = 0;
+    aio_context_t ctx;
     struct iocb cb_listener, cb_client;
     struct iocb *cbs_for_listener[1];
     struct iocb *cbs_for_client[1];

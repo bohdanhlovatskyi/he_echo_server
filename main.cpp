@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
                                      new BoostBlockingMultiThreaded{port, BUF_SIZE, io}
                                      };
 #ifdef __linux__
-    servers.push_back(new AsyncEpoll{port, BUF_SIZE}});
+    servers.push_back(new AsyncEpoll{port, BUF_SIZE});
     servers.push_back(new AsyncIOSubmit{port, BUF_SIZE});
 #endif
 
