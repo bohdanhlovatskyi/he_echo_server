@@ -64,7 +64,8 @@ set(SOURCES main.cpp
 		plain_sockets/common_sockets.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	add_executable(${PROJECT_NAME} ${SOURCES} epoll.cpp)
+	add_executable(${PROJECT_NAME} ${SOURCES} plain_sockets/epoll.cpp
+			 									plain_sockets/io_submit.cpp)
 else()
 	add_executable(${PROJECT_NAME} ${SOURCES})
 endif ()

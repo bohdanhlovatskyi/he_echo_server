@@ -90,6 +90,11 @@ public:
 #ifdef __linux__
 #include <sys/epoll.h>
 
+#include <unistd.h>
+#include <poll.h>
+#include <linux/aio_abi.h>
+#include <sys/syscall.h>
+
 class AsyncEpoll: public Server {
 private:
     constexpr static short MAX_EVENTS = 32;
@@ -104,6 +109,48 @@ public:
     void run() override;
 
     ~AsyncEpoll() = default;
+};
+
+
+class AsyncIOSubmit: public Server {
+private:
+    constexpr short MAX_EVENTS = 32;
+
+    inline static long io_setup(unsigned nr, aio_context_t *ctxp) {
+        return syscall(__NR_io_setup, nr, ctxp);
+    }
+
+    inline static long io_destroy(aio_context_t ctx) {
+        return syscall(__NR_io_destroy, ctx);
+    }
+
+    inline static long io_submit(aio_context_t ctx, long nr,  struct iocb **iocbpp) {
+        return syscall(__NR_io_submit, ctx, nr, iocbpp);
+    }
+
+    inline static long io_getevents(aio_context_t ctx, long min_nr, long max_nr,
+            struct io_event *events, struct timespec *timeout) {
+        return syscall(__NR_io_getevents, ctx, min_nr, max_nr, events, timeout);
+    }
+
+    void create_iocb_(iocb& cb, int sd);
+
+    aio_context_t ctx = 0;
+    struct iocb cb_listener, cb_client;
+    struct iocb *cbs_for_listener[1];
+    struct iocb *cbs_for_client[1];
+    struct iocb *cbs_for_listener_and_client[2];
+
+public:
+    using Server::Server;
+
+    void init() override;
+    void run() override;
+
+    // additional clean up for this one is needed
+    inline ~AsyncIOSubmit() {
+        io_destroy(ctx);
+    };
 };
 
 #endif // __linux__

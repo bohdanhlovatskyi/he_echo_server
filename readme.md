@@ -5,53 +5,29 @@ team:
 - mykhailo pasichnyk: https://github.com/fox-flex
 - yaroslav romanus: https://github.com/yarkoslav
 
+## TODO:
+- debug io_submit and select (Linux only stuff)
+- read docs on fork and get why it uses so much sockets
+- read more on internals of sockets - how to get their limit
+- from the previous, manually estimate bounds on productivity and what can limit it
+- what to do with coroutines? thread pools? 
+- discuss prev and testing overally
+
 ## Prerequisites
 
-- jmeter and bzt (```pip install bzt```) for testing
 - c++17 or greater
 
 ### Compilation
 
-```bat
+```shell
 mkdir build
 cmake .. && make
-./type_of_server [port]
+./start_server [port] [number_of_implementation]
 ```
 
 ### Testing
 
-```bat
-cd testing_util
-
-bzt config.yaml
-```
-Note that config.yaml has following scenario:
-```yaml
-scenarios:
-  with_script:
-    script: tcp_samples.jmx
-```
-This *.jmx file can be generated directly via JMeter (the only way I found to test tcp loading via Taurus)
+TODO
 
 ## Methods
-
-boost::asio based:
-    - syncronous sequential
-    - asynchronous single-threaded
-    - synchronous multithreade
-    - asyncronous multithreaded
-
-plain sockets:
-    - simple syncrhonous
-    - multiprocess
-    - select based (simple threaded async)
-
-## Todo:
-- !!! First and foremost: extensive code-review before moving on
-- Apache JMeter Distributed Testing (https://jmeter.apache.org/usermanual/jmeter_distributed_testing_step_by_step.html)
-- Read on: **Thransaction Throughput vs Threads** metric 
-- Other types of servers:
-  - Coroutines based
-  - epoll / io-select and so on - different ways of async io
-  - multithreaded plain sockets realisations
 
