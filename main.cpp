@@ -22,6 +22,10 @@ int main(int argc, char* argv[]) {
                                      new BlockingMultiProcess{port, BUF_SIZE},
                                      new AsyncSelect{port, BUF_SIZE},
                                      };
+#ifdef __linux__
+    servers.push_back(new AsyncEpoll{port, BUF_SIZE}});
+    servers.push_back(new AsyncIOSubmit{port, BUF_SIZE});
+#endif
 
     // TODO: atoi could return 0
     auto method = std::atoi(argv[2]);

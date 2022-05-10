@@ -1,7 +1,7 @@
 //
 // Created by yarmus on 4/27/22.
 //
-
+#include <cstring>
 #include "common_sockets.hpp"
 
 ssize_t read_msg(int sd, char* buf, ssize_t buf_size) {
