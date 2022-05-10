@@ -57,22 +57,23 @@ include(cmake/CompilerWarnings.cmake)
 #! Project main executable source compilation
 
 set(SOURCES main.cpp
-		plain_sockets/syncronous.cpp
-		plain_sockets/threaded.cpp
-		plain_sockets/multiprocess.cpp
-		plain_sockets/select.cpp
-		plain_sockets/common_sockets.cpp)
+		servers/syncronous.cpp
+		servers/threaded.cpp
+		servers/multiprocess.cpp
+		servers/select.cpp
+		servers/common_sockets.cpp
+		servers/boost_syncronous.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	add_executable(${PROJECT_NAME} ${SOURCES} plain_sockets/epoll.cpp
-			 									plain_sockets/io_submit.cpp)
+	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
+			servers/io_submit.cpp)
 else()
 	add_executable(${PROJECT_NAME} ${SOURCES})
 endif ()
 
 
 #! Put path to your project headers
-target_include_directories(${PROJECT_NAME} PRIVATE plain_sockets)
+target_include_directories(${PROJECT_NAME} PRIVATE servers)
 
 #! Add external packages
 # options_parser requires boost::program_options library

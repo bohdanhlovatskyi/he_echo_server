@@ -29,14 +29,17 @@ func main() {
 		go func(conn net.Conn) {
 			defer conn.Close()
 
-			b := bufio.NewReader(conn)
-			line, err := b.ReadBytes('\n')
-			if err != nil {
-				return
-			}
+            b := bufio.NewReader(conn)
+            for {
+                        line, err := b.ReadBytes('\n')
+            			if err != nil {
+            				return
+            			}
 
-			// or this can be done via io.copy()
-			conn.Write(line)
+            			// or this can be done via io.copy()
+            			conn.Write(line)
+            }
+
 		}(conn)
 	}
 }

@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include <boost/asio.hpp>
+
 #include <iostream>
 #include <vector>
 #include <thread>
@@ -39,6 +41,24 @@ public:
 
     ~Syncronous() = default;
 };
+
+class BoostSyncronous: public Server {
+    using atcp = boost::asio::ip::tcp;
+private:
+    atcp::acceptor acc;
+    boost::asio::io_service& io_service;
+public:
+    inline BoostSyncronous(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
+                    Server::Server(port, buf_size),
+                    io_service{io},
+                    acc{io, atcp::endpoint( atcp::v4(), port)} {};
+
+    void init() override;
+    void run() override;
+
+    ~BoostSyncronous() = default;
+};
+
 
 class BlockingMultiThreaded: public Server {
 public:
