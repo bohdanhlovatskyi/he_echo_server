@@ -5,7 +5,7 @@
 #include "servers.hpp"
 #include "common_sockets.hpp"
 
-void AsyncIOSubmit::create_iocb(iocb& cb, int sd) {
+void AsyncIOSubmit::create_iocb_(iocb& cb, int sd) {
     memset(&cb, 0, sizeof(cb));
     cb.aio_data = sd;
     cb.aio_fildes = sd;
@@ -14,8 +14,9 @@ void AsyncIOSubmit::create_iocb(iocb& cb, int sd) {
 }
 
 void AsyncIOSubmit::init() {
-    listener_fd = create_listener(false, SERVER_PORT);
+    listener_fd = create_listener(false, port);
 
+    ctx = 0;
     // I'm suspicious about first argument
     auto err = io_setup(MAX_EVENTS, &ctx);
     if (err < 0) {
@@ -23,7 +24,7 @@ void AsyncIOSubmit::init() {
     }
 
     // setup I/O control block
-    create_iocb(cb_listener, listener);
+    create_iocb_(cb_listener, listener_fd);
     cbs_for_listener[0] = &cb_listener;
 
     // submitting listener
@@ -44,35 +45,35 @@ void AsyncIOSubmit::run() {
     for (;;) {
         ready = io_getevents(ctx, 1, MAX_EVENTS, events, nullptr);
         for (int i = 0; i < ready; ++i) {
-            if (events[i].data == listener) {
+            if (events[i].data == listener_fd) {
                 // handle new connection
-                auto socket_descriptor = handle_connection(listener, false);
+                auto socket_descriptor = handle_connection(listener_fd, false);
 
                 // adding sockets to io_submit
                 // listener
-                create_iocb(cb_listener, listener);
+                create_iocb_(cb_listener, listener_fd);
                 cbs_for_listener_and_client[0] = &cb_listener;
 
                 // new client
-                create_iocb(cb_client, socket_descriptor);
+                create_iocb_(cb_client, socket_descriptor);
                 cbs_for_listener_and_client[1] = &cb_client;
 
                 // submitting listener and new client
-                err = io_submit(ctx, 2, cbs_for_listener_and_client);
+                auto err = io_submit(ctx, 2, cbs_for_listener_and_client);
                 if (err < 0) {
                     std::cerr << "Cannot submit listener and new client" << std::endl;
                     exit(1);
                 }
             } else {
-                auto bytes_read = read_msg(events[i].data, buf.data(), BUF_SIZE);
+                auto bytes_read = read_msg(events[i].data, buf.data(), buf_size);
                 if (bytes_read > 0) {
                     std::cout << "input msg: " << buf.data() << std::endl;
                     write_msg(events[i].data, buf.data(), bytes_read);
 
                     // submitting the same client
-                    create_iocb(cb_client, events[i].data);
+                    create_iocb_(cb_client, events[i].data);
                     cbs_for_client[0] = &cb_client;
-                    err = io_submit(ctx, 1, cbs_for_client);
+                    auto err = io_submit(ctx, 1, cbs_for_client);
                     if (err < 0) {
                         std::cerr << "Cannot submit listener and new client" << std::endl;
                         exit(1);
