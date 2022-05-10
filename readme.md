@@ -10,7 +10,9 @@ team:
 - read docs on fork and get why it uses so much sockets
 - read more on internals of sockets - how to get their limit
 - from the previous, manually estimate bounds on productivity and what can limit it
-- what to do with coroutines? thread pools? 
+- clear out all the todos  
+- what to do with coroutines? thread pools?
+- what to do with Windows? 
 - discuss prev and testing overally
 
 ## Prerequisites

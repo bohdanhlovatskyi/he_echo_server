@@ -20,10 +20,11 @@ int main(int argc, char* argv[]) {
     boost::asio::io_service io;
 
     std::vector<Server *> servers = {new Syncronous{port, BUF_SIZE},
-                                     new BoostSyncronous{port, BUF_SIZE, io},
                                      new BlockingMultiThreaded{port, BUF_SIZE},
                                      new BlockingMultiProcess{port, BUF_SIZE},
                                      new AsyncSelect{port, BUF_SIZE},
+                                     new BoostSyncronous{port, BUF_SIZE, io},
+                                     new BoostBlockingMultiThreaded{port, BUF_SIZE, io}
                                      };
 #ifdef __linux__
     servers.push_back(new AsyncEpoll{port, BUF_SIZE}});
