@@ -6,7 +6,7 @@ team:
 - yaroslav romanus: https://github.com/yarkoslav
 
 ## TODO:
-- debug io_submit and select (Linux only stuff)
+- debug select (Linux only stuff)
 - read docs on fork and get why it uses so much sockets
 - read more on internals of sockets - how to get their limit
 - from the previous, manually estimate bounds on productivity and what can limit it
