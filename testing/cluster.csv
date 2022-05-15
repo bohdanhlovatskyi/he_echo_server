@@ -1,0 +1,2 @@
+ssh_ip,ssh_port,ssh_psw,server_ip,output_file,fortio,time,qps,threads
+root@172.21.0.2,22,root,tcp://172.21.0.1:9000,pipi1.json,/go/bin/fortio,5s,10000,10
