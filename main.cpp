@@ -27,12 +27,13 @@ int main(int argc, char* argv[]) {
     servers.push_back(new AsyncIOSubmit{port, BUF_SIZE});
 #endif
 
-    // TODO: atoi could return 0
+    // you should pass number of server starting from 1!!!!
     auto method = std::atoi(argv[2]);
-    if (method < 0 || static_cast<size_t>(method) >= servers.size()) {
+    if (method <= 0 || static_cast<size_t>(method) > servers.size()) {
         std::cerr << "Fatal: Wrong method specified" << std::endl;
         return 3;
     }
+    --method;
 
     try {
         servers[method]->init();
