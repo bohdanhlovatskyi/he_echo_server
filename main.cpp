@@ -19,12 +19,14 @@ int main(int argc, char* argv[]) {
 
     boost::asio::io_service io;
 
+    // N. B. several boost implementation conflict
     std::vector<Server *> servers = {new Syncronous{port, BUF_SIZE},
                                      new BlockingMultiThreaded{port, BUF_SIZE},
                                      new BlockingMultiProcess{port, BUF_SIZE},
                                      new AsyncSelect{port, BUF_SIZE},
                                      // new BoostSyncronous{port, BUF_SIZE, io},
-                                     new BoostBlockingMultiThreaded{port, BUF_SIZE, io}
+                                     // new BoostBlockingMultiThreaded{port, BUF_SIZE, io}
+                                     new BoostAsync{port, BUF_SIZE, io}
                                      };
 #ifdef __linux__
     servers.push_back(new AsyncEpoll{port, BUF_SIZE});
@@ -33,6 +35,7 @@ int main(int argc, char* argv[]) {
 
     // you should pass number of server starting from 1!!!!
     auto method = std::atoi(argv[2]);
+    std::cerr << method << std::endl;
     if (method <= 0 || static_cast<size_t>(method) > servers.size()) {
         std::cerr << "Fatal: Wrong method specified" << std::endl;
         return 3;

@@ -19,6 +19,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 #include "common_sockets.hpp"
 
@@ -94,6 +95,45 @@ public:
     void run() override;
 
     ~BoostBlockingMultiThreaded() = default;
+};
+
+class BoostAsync: public Server {
+    using atcp = boost::asio::ip::tcp;
+private:
+    atcp::acceptor acc;
+    boost::asio::io_service& io_service;
+
+    class session {
+    private:
+        atcp::socket socket_;
+        enum { max_length = 1024 };
+        char data_[max_length];
+
+    public:
+        session(boost::asio::io_service& io_service)
+                : socket_(io_service) {}
+
+        inline atcp::socket& socket() {
+            return socket_;
+        }
+
+        void start();
+        void handle_write(const boost::system::error_code& error);
+        void handle_read(const boost::system::error_code& error, size_t bytes_transferred);
+    };
+
+    void handle_accept(session* new_session, const boost::system::error_code& error);
+
+public:
+    BoostAsync(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
+                        Server::Server(port, buf_size),
+                        io_service{io},
+                        acc{io, atcp::endpoint( atcp::v4(), port)} {};
+
+    void init() override;
+    void run() override;
+
+    ~BoostAsync() = default;
 };
 
 class BlockingMultiProcess: public Server {
