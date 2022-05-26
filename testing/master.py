@@ -36,12 +36,12 @@ class Workers:
     def __init__(self):
         self.workers_info = None
         self.workers_fut = []
-        self.data_folder = "./data/"
+        # self.data_folder = "./data/"
         self.worker_sh = "./worker.sh"
 
     def add_workers(self, workers_data_path="cluster.csv"):
         self.workers_info = pd.read_csv(workers_data_path)
-        self.workers_info["output_file"] = self.data_folder + self.workers_info["output_file"]
+        # self.workers_info["output_file"] = self.data_folder + self.workers_info["output_file"]
 
     def start(self):
         for i, worker in self.workers_info.iterrows():

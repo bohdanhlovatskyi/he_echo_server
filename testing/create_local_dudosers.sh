@@ -2,11 +2,11 @@
 
 #yes | sudo pacman -S sshpass openssh
 
-docker build -f Dockerfile.worker -t sucks .
-docker rm -f sucks
+docker build -f Dockerfile.worker -t dudoser .
+docker rm -f dudoser1
 docker network rm hostonly
 docker network create -d bridge --internal hostonly
-docker run -d --network hostonly -p 22:22 --name sucks sucks
+docker run -d --network hostonly -p 22:22 --name dudoser1 dudoser
 
 # ip is about 172.19.0.2
 # to check run

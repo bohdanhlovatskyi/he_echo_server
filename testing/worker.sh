@@ -4,7 +4,7 @@
 #ssh_port="22"
 #ssh_psw="root"
 #server_ip="tcp://172.20.0.1:9000"
-#output_file="sasat1.json"
+#output_file="res1.json"
 #
 #fortio="/go/bin/fortio"
 #time="5s"
@@ -31,39 +31,21 @@ time=$7
 qps=$8
 threads=$9
 
-tmp_file="tmp.json"
+data_dir="./data"
+fortio_cmd="${fortio} load -qps ${qps} -t ${time} -c ${threads} -json ${output_file} ${server_ip}"
 
-fortio_cmd="${fortio} load -qps ${qps} -t ${time} -c ${threads} -json ./${tmp_file} ${server_ip}"
 
 sshpass -p "${ssh_psw}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${ssh_ip}" -p "${ssh_port}" "${fortio_cmd}"
-sshpass -p "${ssh_psw}" scp -P "${ssh_port}" "${ssh_ip}:/root/${tmp_file}" .
-mv "${tmp_file}" "${output_file}"
-
-#sshpass -p "root" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@172.20.0.2 -p 22
-#ssh root@172.20.0.2 -p 22
+sshpass -p "${ssh_psw}" scp -P "${ssh_port}" "${ssh_ip}:/root/${output_file}" .
+mv "${output_file}" "${data_dir}/${output_file}"
 
 
+echo "sshpass -p ${ssh_psw} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${ssh_ip} -p ${ssh_port} ${fortio_cmd}
+sshpass -p ${ssh_psw} scp -P ${ssh_port} ${ssh_ip}:/root/${output_file} .
+mv ${output_file} ${data_dir}/${output_file}" > "data2${output_file}.txt"
 
-#sshpass -p 'password' ssh bubuntyk@localhost -p 22
-#
-#docker run -d -p 2222:22 -p 8080:8080 sucks
-##sshpass -p 'root' ssh root@localhost -p 2222
-#
-#sshpass -p 'root' ssh root@localhost -p 2222 /go/bin/fortio load -qps 1000 -t 2s -c 10 -json "sasat.json" tcp://127.0.0.1:9000
-#sshpass -p 'root' scp -P 2222 ssh root@localhost:~/sasat.json ./data/sasat.json
-#sshpass -p 'root' scp -P 2222 root@localhost:~/sasat.json ./data/
-#
-#sshpass -p "root" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost -p 2222
-#sshpass -p "root" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost -p 2222 /go/bin/fortio load -qps 1000 -t 2s -c 10 -json "sasat.json" tcp://127.0.0.1:9000
-#
-#docker network create -d bridge --internal hostonly
-#docker run -d --network hostonly -p 2222:22 --name sucks sucks
-#docker run -d -p 2222:22 --name sucks sucks
-#
-##sshpass -p 'test' ssh -i "${ssh_key}" test@localhost -p 22 \
-##    fortio load -qps 1000 -t 2s -c 10 -json "sasat.json" tcp://127.0.0.1:9000
-##sshpass -p 'test' scp -P 22 test@localhost:~/fifi.txt ./data/fifi.txt
-#
-##sshpass -p 'test' ssh -i "${ssh_key}" testls@localhost -p 22 \
-##  docker run fortio load -qps 1000 -t 2s -c 10 -json "sasat.json" tcp://127.0.0.1:9000
-##sshpass -p 'test' scp -P 22 test@localhost:~/sasat.json ./data/sasat.json
+#ssh root@172.22.0.2 -p 22
+#sshpass -p root ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@172.22.0.2 -p 22 /go/bin/fortio load -qps 10000 -t 2s -c 6 -json pipi1.json tcp://172.22.0.1:9000
+sshpass -p root scp -P 22 ./bin root@172.22.0.2:/root/pipi1.json .
+#mv pipi1.json ./data/pipi1.json
+

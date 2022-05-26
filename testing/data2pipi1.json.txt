@@ -1,0 +1,7 @@
+sshpass -p root ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@172.23.0.2 -p 22 /go/bin/fortio load -qps 10000 -t 2s -c 6 -json pipi1.json tcp://172.0.0.1:9000
+sshpass -p root scp -P 22 root@172.23.0.2:/root/pipi1.json .
+mv pipi1.json ./data/pipi1.json
+
+
+sshpass -p root ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@172.23.0.2 -p 22
+ —network bridge
