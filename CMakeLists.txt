@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.15)
 set(PROJECT_NAME start_server)
 project(${PROJECT_NAME} C CXX) # project(${PROJECT_NAME} C CXX ASM)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 ##########################################################
 # User configurable options of the template
@@ -65,7 +65,9 @@ include(cmake/CompilerWarnings.cmake)
 ##		servers/boost_syncronous.cpp
 ##		servers/boost_threaded.cpp
 #		servers/boost_async.cpp)
-set(SOURCES spawn.cpp)
+# set(SOURCES spawn.cpp)
+
+set(SOURCES server.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
