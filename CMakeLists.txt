@@ -65,7 +65,10 @@ include(cmake/CompilerWarnings.cmake)
 ##		servers/boost_syncronous.cpp
 ##		servers/boost_threaded.cpp
 #		servers/boost_async.cpp)
-set(SOURCES spawn.cpp)
+
+#set(SOURCES spawn.cpp)
+
+set(SOURCES marl.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
@@ -74,10 +77,12 @@ else()
 	add_executable(${PROJECT_NAME} ${SOURCES})
 endif ()
 
-
+set(MARL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/marl") # example <path-to-marl>: "${CMAKE_CURRENT_SOURCE_DIR}/third_party/marl"
+add_subdirectory(${MARL_DIR})
+target_link_libraries(${PROJECT_NAME} marl)
 
 # proposed by this issue: https://github.com/boostorg/asio/issues/362
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT=1")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT=1")
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE servers)
