@@ -10,13 +10,15 @@
 
 #include "servers.hpp"
 
-void BoostBlockingMultiThreaded::init() {
+
+void BoostBlockingThreadPool::init() {
     assert(port != 0);
     io_service.run();
 }
 
-void BoostBlockingMultiThreaded::session_(
-        boost::shared_ptr<boost::asio::ip::tcp::socket> sock, size_t buf_size) {
+
+void BoostBlockingThreadPool::session_(
+        boost::shared_ptr<atcp::socket> sock, size_t buf_size) {
     std::vector<char> data;
     data.resize(buf_size);
 
@@ -39,7 +41,7 @@ void BoostBlockingMultiThreaded::session_(
             boost::asio::write(*sock, boost::asio::buffer(data, length));
         }
 
-        sock->shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+        sock->shutdown(atcp::socket::shutdown_send);
         sock->close();
 
     } catch (std::exception& e) {
@@ -49,14 +51,13 @@ void BoostBlockingMultiThreaded::session_(
 }
 
 
-
-void BoostBlockingMultiThreaded::run() {
-    using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
+void BoostBlockingThreadPool::run() {
+    using socket_ptr = boost::shared_ptr<atcp::socket>;
 
     for (;;) {
-        socket_ptr sock(new boost::asio::ip::tcp::socket(io_service));
+        socket_ptr sock(new atcp::socket(io_service));
         acc.accept(*sock);
-        boost::thread t(boost::bind(session_, sock, buf_size));
+        boost::asio::post(tp, boost::bind(session_, sock, buf_size));
     }
 }
 

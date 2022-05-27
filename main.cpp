@@ -25,8 +25,9 @@ int main(int argc, char* argv[]) {
                                      new BlockingMultiProcess{port, BUF_SIZE},
                                      new AsyncSelect{port, BUF_SIZE},
                                      // new BoostSyncronous{port, BUF_SIZE, io},
-                                     // new BoostBlockingMultiThreaded{port, BUF_SIZE, io}
-                                     new BoostAsync{port, BUF_SIZE, io}
+//                                      new BoostBlockingMultiThreaded{port, BUF_SIZE, io},
+//                                      new BoostBlockingThreadPool{port, BUF_SIZE, io},
+//                                     new BoostAsync{port, BUF_SIZE, io},
                                      };
 #ifdef __linux__
     servers.push_back(new AsyncEpoll{port, BUF_SIZE});
@@ -44,14 +45,14 @@ int main(int argc, char* argv[]) {
 
     try {
         servers[method]->init();
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error& e) {
         std::cerr << "Fatal: could not init server" << e.what() << std::endl;
         return 4;
     }
 
     try {
         servers[method]->run();
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error& e) {
         std::cerr << "Fatal: " << e.what() << std::endl;
         return 4;
     }

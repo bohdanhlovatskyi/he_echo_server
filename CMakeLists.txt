@@ -64,7 +64,9 @@ set(SOURCES main.cpp
 		servers/common_sockets.cpp
 #		servers/boost_syncronous.cpp
 #		servers/boost_threaded.cpp
-		servers/boost_async.cpp)
+#		servers/boost_async.cpp
+#		servers/boost_thread_pool.cpp
+		)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
