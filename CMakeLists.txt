@@ -56,15 +56,16 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-set(SOURCES main.cpp
-		servers/syncronous.cpp
-		servers/threaded.cpp
-		servers/multiprocess.cpp
-		servers/select.cpp
-		servers/common_sockets.cpp
-#		servers/boost_syncronous.cpp
-#		servers/boost_threaded.cpp
-		servers/boost_async.cpp)
+#set(SOURCES main.cpp
+#		servers/syncronous.cpp
+#		servers/threaded.cpp
+#		servers/multiprocess.cpp
+#		servers/select.cpp
+#		servers/common_sockets.cpp
+##		servers/boost_syncronous.cpp
+##		servers/boost_threaded.cpp
+#		servers/boost_async.cpp)
+set(SOURCES spawn.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
@@ -74,14 +75,18 @@ else()
 endif ()
 
 
+
+# proposed by this issue: https://github.com/boostorg/asio/issues/362
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT=1")
+
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE servers)
 
 #! Add external packages
 # options_parser requires boost::program_options library
-find_package(Boost 1.71.0 COMPONENTS system thread regex REQUIRED)
+find_package(Boost COMPONENTS system thread regex coroutine REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} Boost::system Boost::thread Boost::regex)
+target_link_libraries(${PROJECT_NAME} Boost::system Boost::thread Boost::regex Boost::coroutine)
 
 
 ##########################################################
