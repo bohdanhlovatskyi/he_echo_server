@@ -97,6 +97,7 @@ auto AsyncWrite(tcp::socket& socket, boost::asio::const_buffer buffer) {
 
 // Client Handler
 
+// std::future does not implement required functionality :+)
 Task HandleClient(tcp::socket socket) noexcept {
     static const size_t kBufferSize = 1024;
 
