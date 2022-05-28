@@ -5,7 +5,7 @@
 
 constexpr ssize_t BUF_SIZE = 1024;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 3) {
         std::cerr << "Usage: start_server <port> <method>\n";
         return 1;
@@ -18,43 +18,46 @@ int main(int argc, char* argv[]) {
     }
 
     boost::asio::io_service io;
-    std::vector<Server *> servers = {new Syncronous{port, BUF_SIZE},
-                                     new BlockingMultiThreaded{port, BUF_SIZE},
-                                     new BlockingMultiProcess{port, BUF_SIZE},
-                                     new AsyncSelect{port, BUF_SIZE},
-//                                     new BoostSyncronous{port, BUF_SIZE, io},
-//                                     new BoostBlockingMultiThreaded{port, BUF_SIZE, io},
-//                                     new BoostBlockingThreadPool{port, BUF_SIZE, io},
-//                                     new BoostAsync{port, BUF_SIZE, io},
-//                                     new CoroBoost{port, BUF_SIZE, io}
-//                                     new StackFullBoost{port, BUF_SIZE, io}
-                                     new StacklessBoost{port, BUF_SIZE, io}
-                                     };
+#ifdef TARGET_SYNCRONOUS
+    auto server = Syncronous{port, BUF_SIZE};
+#elif TARGET_THREADED
+    auto server = BlockingMultiThreaded{port, BUF_SIZE};
+#elif TARGET_MULTIPROCESS
+    auto server = BlockingMultiProcess{port, BUF_SIZE};
+#elif TARGET_SELECT
+    auto server = AsyncSelect{port, BUF_SIZE};
+#elif TARGET_BOOST_SYNCRONOUS
+    auto server = BoostSyncronous{port, BUF_SIZE, io};
+#elif TARGET_BOOST_THREADED
+    auto server = BoostBlockingMultiThreaded{port, BUF_SIZE, io};
+#elif TARGET_BOOST_THREAD_POOL
+    auto server = BoostBlockingThreadPool{port, BUF_SIZE, io};
+#elif TARGET_BOOST_ASYNC
+    auto server = BoostAsync{port, BUF_SIZE, io};
+#elif TARGET_CORO_BOOST
+    auto server = CoroBoost{port, BUF_SIZE, io};
+#elif TARGET_STACKFUL
+    auto server = StackFullBoost{port, BUF_SIZE, io};
+#elif TARGET_STACKLESS
+    auto server = StacklessBoost{port, BUF_SIZE, io};
+#elif TARGET_EPOLL
 #ifdef __linux__
-    servers.push_back(new AsyncEpoll{port, BUF_SIZE});
-    servers.push_back(new AsyncIOSubmit{port, BUF_SIZE});
+    auto server = AsyncEpoll{port, BUF_SIZE});
+#endif
+#elif TARGET_IO_SUBMIT
+#ifdef __linux__
+    auto server = AsyncIOSubmit{port, BUF_SIZE});
+#endif
+#else
+    std::cerr << "No valid compile target defined!" << std::endl;
+    return -1;
 #endif
 
-    // you should pass number of server starting from 1!!!!
-    auto method = std::atoi(argv[2]);
-    std::cerr << method << std::endl;
-    if (method <= 0 || static_cast<size_t>(method) > servers.size()) {
-        std::cerr << "Fatal: Wrong method specified" << std::endl;
-        return 3;
-    }
-    --method;
-
     try {
-        servers[method]->init();
-    } catch (std::runtime_error& e) {
-        std::cerr << "Fatal: could not init server" << e.what() << std::endl;
-        return 4;
-    }
-
-    try {
-        servers[method]->run();
+        server.init();
+        server.run();
         io.run();
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error &e) {
         std::cerr << "Fatal: " << e.what() << std::endl;
         return 4;
     }

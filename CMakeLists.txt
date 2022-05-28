@@ -5,11 +5,10 @@ cmake_minimum_required(VERSION 3.15)
 #! CHANGE YOUR PROJECT NAME
 #  It is used as your project's main executable name. 
 set(PROJECT_NAME start_server)
-project(${PROJECT_NAME} C CXX) # project(${PROJECT_NAME} C CXX ASM)
+project(${PROJECT_NAME} CXX) # project(${PROJECT_NAME} C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 20)
 
-SET(CMAKE_C_COMPILER clang)
 SET(CMAKE_CXX_COMPILER clang++)
 
 SET(CLANG_COROUTINES_COMPILE_FLAGS "-Wall -Wextra -std=gnu++2a -fcoroutines-ts -stdlib=libc++")
@@ -50,7 +49,7 @@ set(ENABLE_MSAN OFF)
 
 #! Be default -- build release version if not specified otherwise.
 if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif ()
 
 # Warnings as errors should be imported here -- do not move this line
@@ -60,53 +59,116 @@ include(cmake/CompilerWarnings.cmake)
 # Project files, packages, libraries and so on
 ##########################################################
 
-#! Project main executable source compilation
-
-set(SOURCES main.cpp
-		servers/syncronous.cpp
-		servers/threaded.cpp
-		servers/multiprocess.cpp
-		servers/select.cpp
-		servers/common_sockets.cpp
-#		servers/boost_syncronous.cpp
-#		servers/boost_threaded.cpp
-#		servers/boost_async.cpp
-#		servers/boost_thread_pool.cpp
-#		servers/coro_boost.cpp)
-#		servers/stackful.cpp
-		servers/stackless.cpp)
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
-			servers/io_submit.cpp)
-else()
-	add_executable(${PROJECT_NAME} ${SOURCES})
-endif ()
-
-
-
 # proposed by this issue: https://github.com/boostorg/asio/issues/362
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT=1")
-
-#! Put path to your project headers
-target_include_directories(${PROJECT_NAME} PRIVATE servers)
 
 #! Add external packages
 # options_parser requires boost::program_options library
 find_package(Boost COMPONENTS system thread regex coroutine REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} Boost::system Boost::thread Boost::regex Boost::coroutine)
+find_package(TBB REQUIRED)
+
+#! Specify targets
+set(SERVER_TARGETS
+        syncronous
+        threaded
+        multiprocess
+        select
+        common_sockets
+        boost_syncronous
+        boost_threaded
+        boost_async
+        boost_thread_pool
+        coro_boost
+        stackful
+        stackless
+        )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND SERVER_TARGETS
+            epoll
+            io_submit
+            )
+endif ()
+
+
+set(LINK_LIBS_syncronous
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_threaded
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_multiprocess
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_select
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_common_sockets
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_boost_syncronous
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_boost_threaded
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_boost_async
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_boost_thread_pool
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_coro_boost
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_stackful
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_stackless
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_epoll
+        ${BOOST_KEY_WORD}
+        )
+set(LINK_LIBS_io_submit
+        ${BOOST_KEY_WORD}
+        )
+
+#! Project executables source compilation
+foreach (TARGET ${SERVER_TARGETS})
+    MESSAGE("Compiling target: ${TARGET}")
+    add_executable(${TARGET} main.cpp
+            servers/${TARGET}.cpp
+            servers/common_sockets.cpp
+            )
+
+    string(TOUPPER ${TARGET} TARGET_SPECIFIER)
+    target_compile_definitions(${TARGET} PUBLIC "TARGET_${TARGET_SPECIFIER}")
+
+    target_include_directories(${TARGET} PRIVATE servers)
+
+    # link boost
+    target_include_directories(${TARGET} PRIVATE ${Boost_INCLUDE_DIR})
+    target_link_libraries(${TARGET} ${Boost_LIBRARIES})
+
+    # link tbb
+    target_include_directories(${TARGET} PRIVATE ${TBB_INCLUDE_DIRS})
+    target_link_libraries(${TARGET} TBB::tbb)
+
+endforeach ()
+
 
 ##########################################################
 # Fixed CMakeLists.txt part
 ##########################################################
 
-INSTALL(PROGRAMS
-		$<TARGET_FILE:${PROJECT_NAME}>	# ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
-		DESTINATION bin)
+foreach (TARGET ${SERVER_TARGETS})
+    INSTALL(TARGETS ${TARGET}
+            DESTINATION bin)
+endforeach ()
 
 # Define ALL_TARGETS variable to use in PVS and Sanitizers
-set(ALL_TARGETS ${PROJECT_NAME})
+set(ALL_TARGETS ${SERVER_TARGETS})
 
 # Include CMake setup
 include(cmake/main-config.cmake)

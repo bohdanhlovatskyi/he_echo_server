@@ -361,6 +361,25 @@ public:
     ~AsyncEpoll() = default;
 };
 
+class ThreadedAsyncEpoll: public Server {
+private:
+    oneapi::tbb::task_arena arena{
+        oneapi::tbb::this_task_arena::max_concurrency()
+    };
+
+    constexpr static short MAX_EVENTS = 32;
+    struct epoll_event events[MAX_EVENTS];
+    int epfd;
+    void epoll_ctl_add(int epfd, int fd, uint32_t events);
+
+public:
+    using Server::Server;
+
+    void init() override;
+    void run() override;
+
+    ~ThreadedAsyncEpoll() = default;
+};
 
 class AsyncIOSubmit: public Server {
 private:
