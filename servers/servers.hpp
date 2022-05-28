@@ -17,6 +17,15 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/spawn.hpp>
+
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/detached.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/asio/write.hpp>
+#include <cstdio>
 
 #include <utility>
 #include <experimental/coroutine>
@@ -199,7 +208,8 @@ private:
         std::error_code ec_{};
     };
 
-    void accept();
+    void accept(boost::asio::io_service& io_service,
+                size_t port, boost::asio::yield_context yield);
 
     Task handle_client(boost::asio::ip::tcp::socket socket) noexcept;
 
@@ -226,6 +236,68 @@ public:
     void run() override;
 
     ~CoroBoost() = default;
+};
+
+
+class StackFullBoost : public Server {
+    using atcp = boost::asio::ip::tcp;
+private:
+    atcp::acceptor acc;
+    boost::asio::io_service& io_service;
+
+    void accept(boost::asio::io_service& io_service,
+                size_t port, boost::asio::yield_context yield);
+
+    class session : public boost::enable_shared_from_this<session> {
+    private:
+        boost::asio::io_service::strand strand_;
+        boost::asio::ip::tcp::socket socket_;
+
+        void echo(boost::asio::yield_context yield);
+
+    public:
+        inline explicit session(boost::asio::io_service& io_service)
+                : strand_(io_service),
+                  socket_(io_service)
+        {
+            ;
+        }
+
+        inline boost::asio::ip::tcp::socket& socket() { return socket_; }
+
+        void go();
+    };
+public:
+    StackFullBoost(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
+                        Server::Server(port, buf_size),
+                        io_service{io},
+                        acc{io, atcp::endpoint( atcp::v4(), port)} {};
+
+    void init() override;
+    void run() override;
+
+    ~StackFullBoost() = default;
+};
+
+
+
+class StacklessBoost : public Server {
+    using atcp = boost::asio::ip::tcp;
+private:
+    boost::asio::io_context io_context{1};
+
+    boost::asio::awaitable<void> echo(atcp::socket socket);
+
+public:
+    StacklessBoost(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
+                        Server::Server(port, buf_size) { (void) io; };
+
+    boost::asio::awaitable<void> listener();
+
+    void init() override;
+    void run() override;
+
+    ~StacklessBoost() = default;
 };
 
 class BlockingMultiProcess: public Server {

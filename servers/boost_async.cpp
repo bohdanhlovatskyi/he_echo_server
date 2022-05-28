@@ -67,15 +67,12 @@ void BoostAsync::handle_accept(BoostAsync::session* new_session,
 
 void BoostAsync::init() {
     assert(port != 0);
-
-    session* new_session = new BoostAsync::session(io_service);
-    acc.async_accept(new_session->socket(),
-                           boost::bind(&BoostAsync::handle_accept, this, new_session,
-                                       boost::asio::placeholders::error));
-
-    io_service.run();
+    ;
 }
 
 void BoostAsync::run() {
-    ;
+    session* new_session = new BoostAsync::session(io_service);
+    acc.async_accept(new_session->socket(),
+                     boost::bind(&BoostAsync::handle_accept, this, new_session,
+                                 boost::asio::placeholders::error));
 }

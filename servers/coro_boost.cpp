@@ -33,6 +33,7 @@ auto CoroBoost::read_awaiter::await_resume() {
 void CoroBoost::write_awaiter::await_suspend(coro_handle h) {
     boost::asio::async_write(socket_, buffer_,
                              [this, h](auto ec, size_t bytes) mutable {
+                                 (void) bytes;
                                  ec_ = ec;
                                  h.resume();
                              });

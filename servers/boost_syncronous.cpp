@@ -3,7 +3,7 @@
 
 void BoostSyncronous::init() {
     assert(port != 0);
-    io_service.run();
+    ;
 }
 
 void BoostSyncronous::run() {

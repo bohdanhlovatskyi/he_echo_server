@@ -13,7 +13,7 @@
 
 void BoostBlockingThreadPool::init() {
     assert(port != 0);
-    io_service.run();
+    ;
 }
 
 

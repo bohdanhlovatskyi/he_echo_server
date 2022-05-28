@@ -18,17 +18,17 @@ int main(int argc, char* argv[]) {
     }
 
     boost::asio::io_service io;
-
-    // N. B. several boost implementation conflict
     std::vector<Server *> servers = {new Syncronous{port, BUF_SIZE},
                                      new BlockingMultiThreaded{port, BUF_SIZE},
                                      new BlockingMultiProcess{port, BUF_SIZE},
                                      new AsyncSelect{port, BUF_SIZE},
-//                                   new BoostSyncronous{port, BUF_SIZE, io},
-//                                   new BoostBlockingMultiThreaded{port, BUF_SIZE, io},
-//                                   new BoostBlockingThreadPool{port, BUF_SIZE, io},
-//                                   new BoostAsync{port, BUF_SIZE, io},
-                                     new CoroBoost{port, BUF_SIZE, io}
+//                                     new BoostSyncronous{port, BUF_SIZE, io},
+//                                     new BoostBlockingMultiThreaded{port, BUF_SIZE, io},
+//                                     new BoostBlockingThreadPool{port, BUF_SIZE, io},
+//                                     new BoostAsync{port, BUF_SIZE, io},
+//                                     new CoroBoost{port, BUF_SIZE, io}
+//                                     new StackFullBoost{port, BUF_SIZE, io}
+                                     new StacklessBoost{port, BUF_SIZE, io}
                                      };
 #ifdef __linux__
     servers.push_back(new AsyncEpoll{port, BUF_SIZE});

@@ -12,7 +12,7 @@
 
 void BoostBlockingMultiThreaded::init() {
     assert(port != 0);
-    io_service.run();
+    ;
 }
 
 void BoostBlockingMultiThreaded::session_(
