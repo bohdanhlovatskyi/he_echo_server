@@ -54,7 +54,6 @@ void ThreadedAsyncEpoll::run() {
 
                     auto bytes_read = read_msg(events[i].data.fd, buf.data(), buf_size);
                     if (bytes_read > 0) {
-                        std::cout << "input msg: " << buf.data() << std::endl;
                         write_msg(events[i].data.fd, buf.data(), bytes_read);
                     } else {
                         // p.set_value(true);

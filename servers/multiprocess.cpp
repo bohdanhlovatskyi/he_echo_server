@@ -28,7 +28,6 @@ void BlockingMultiProcess::run() {
             for (;;) {
                 auto bytes_read = read_msg(sd, buf.data(), buf_size);
                 if (bytes_read > 0) {
-                    std::cout << "input msg: " << buf.data() << std::endl;
                     write_msg(sd, buf.data(), buf_size);
                 } else {
                     // closing socket when error

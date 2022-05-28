@@ -26,10 +26,6 @@ void BoostBlockingMultiThreaded::session_(
         for (;;) {
             size_t length = sock->read_some(boost::asio::buffer(data), error);
 
-#ifdef DEBUG_INFO
-            std::cout << "New session was created: [" << sock->remote_endpoint().address() << \
-        ", " << sock->remote_endpoint().port() << "]" << std::endl;
-#endif
             if (error && error != boost::asio::error::eof) {
                 throw boost::system::system_error(error);
             } else if (error || length == 0) {

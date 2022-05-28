@@ -9,7 +9,6 @@ ssize_t AsyncSelect::read_(int fd, fd_state* state) {
     assert(state != nullptr);
     auto bytes_read = read_msg(fd, state->buf.data(), buf_size);
     if (bytes_read > 0) {
-        std::cout << "input msg: " << state->buf.data() << std::endl;
         state->wr = true;
         state->bytes_read = bytes_read;
     } else {

@@ -67,7 +67,6 @@ void AsyncIOSubmit::run() {
             } else {
                 auto bytes_read = read_msg(events[i].data, buf.data(), buf_size);
                 if (bytes_read > 0) {
-                    std::cout << "input msg: " << buf.data() << std::endl;
                     write_msg(events[i].data, buf.data(), bytes_read);
 
                     // submitting the same client
