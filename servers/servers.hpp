@@ -5,21 +5,21 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-//#include <boost/asio.hpp>
-
 #include <iostream>
 #include <vector>
 #include <thread>
 #include <cassert>
 #include <cstring>
 
-// TODO: get rid of them here and in the boost threaded
 #include <cstdlib>
 #include <boost/bind.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+
+#include <utility>
+#include <experimental/coroutine>
 
 #include "common_sockets.hpp"
 
@@ -157,6 +157,75 @@ public:
     void run() override;
 
     ~BoostAsync() = default;
+};
+
+using coro_handle = std::experimental::coroutine_handle<>;
+class CoroBoost : public Server {
+private:
+    boost::asio::ip::tcp::acceptor acc;
+    boost::asio::io_service& io_service;
+
+    struct Task {
+        struct promise_type {
+            inline auto get_return_object() { return Task{}; }
+            inline auto initial_suspend() noexcept { return std::experimental::suspend_never{}; }
+            inline auto final_suspend() noexcept { return std::experimental::suspend_never{}; }
+            inline void unhandled_exception() { std::terminate(); }
+            inline void return_void() {}
+        };
+    };
+
+    struct read_awaiter {
+
+        inline bool await_ready() { return false; }
+
+        void await_suspend(coro_handle h);
+        auto await_resume();
+
+        boost::asio::ip::tcp::socket& socket_;
+        boost::asio::mutable_buffer buffer_;
+        std::error_code ec_{};
+        size_t bytes_read_{};
+    };
+
+    struct write_awaiter {
+        inline bool await_ready() { return false; }
+
+        void await_suspend(coro_handle h);
+        auto await_resume();
+
+        boost::asio::ip::tcp::socket& socket_;
+        boost::asio::const_buffer buffer_;
+        std::error_code ec_{};
+    };
+
+    void accept();
+
+    Task handle_client(boost::asio::ip::tcp::socket socket) noexcept;
+
+    inline auto async_write(boost::asio::ip::tcp::socket& socket,
+                     boost::asio::const_buffer buffer) {
+        return write_awaiter{socket, buffer};
+    }
+
+    inline auto async_read(boost::asio::ip::tcp::socket& socket, boost::asio::mutable_buffer buffer) {
+        return read_awaiter{socket, buffer};
+    }
+
+public:
+    CoroBoost(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
+                        Server::Server(port, buf_size),
+                        io_service{io},
+                        acc{io,
+                            boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), port)}
+    {
+        ;
+    };
+
+    void init() override;
+    void run() override;
+
+    ~CoroBoost() = default;
 };
 
 class BlockingMultiProcess: public Server {

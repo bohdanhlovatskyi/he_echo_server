@@ -56,18 +56,16 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 
-#set(SOURCES main.cpp
-#		servers/syncronous.cpp
-#		servers/threaded.cpp
-#		servers/multiprocess.cpp
-#		servers/select.cpp
-#		servers/common_sockets.cpp
-##		servers/boost_syncronous.cpp
-##		servers/boost_threaded.cpp
-#		servers/boost_async.cpp)
-# set(SOURCES spawn.cpp)
-
-set(SOURCES server.cpp)
+set(SOURCES main.cpp
+		servers/syncronous.cpp
+		servers/threaded.cpp
+		servers/multiprocess.cpp
+		servers/select.cpp
+		servers/common_sockets.cpp
+#		servers/boost_syncronous.cpp
+#		servers/boost_threaded.cpp
+#		servers/boost_async.cpp
+		servers/coro_boost.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_executable(${PROJECT_NAME} ${SOURCES} servers/epoll.cpp
@@ -89,7 +87,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE servers)
 find_package(Boost COMPONENTS system thread regex coroutine REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} Boost::system Boost::thread Boost::regex Boost::coroutine)
-
 
 ##########################################################
 # Fixed CMakeLists.txt part

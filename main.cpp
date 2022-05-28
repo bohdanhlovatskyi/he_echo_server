@@ -24,10 +24,11 @@ int main(int argc, char* argv[]) {
                                      new BlockingMultiThreaded{port, BUF_SIZE},
                                      new BlockingMultiProcess{port, BUF_SIZE},
                                      new AsyncSelect{port, BUF_SIZE},
-                                     // new BoostSyncronous{port, BUF_SIZE, io},
-//                                      new BoostBlockingMultiThreaded{port, BUF_SIZE, io},
-//                                      new BoostBlockingThreadPool{port, BUF_SIZE, io},
-//                                     new BoostAsync{port, BUF_SIZE, io},
+//                                   new BoostSyncronous{port, BUF_SIZE, io},
+//                                   new BoostBlockingMultiThreaded{port, BUF_SIZE, io},
+//                                   new BoostBlockingThreadPool{port, BUF_SIZE, io},
+//                                   new BoostAsync{port, BUF_SIZE, io},
+                                     new CoroBoost{port, BUF_SIZE, io}
                                      };
 #ifdef __linux__
     servers.push_back(new AsyncEpoll{port, BUF_SIZE});
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]) {
 
     try {
         servers[method]->run();
+        io.run();
     } catch (std::runtime_error& e) {
         std::cerr << "Fatal: " << e.what() << std::endl;
         return 4;
