@@ -69,6 +69,7 @@ find_package(TBB REQUIRED)
 
 #! Specify targets
 set(SERVER_TARGETS
+        threaded_epoll
         syncronous
         threaded
         multiprocess
@@ -90,7 +91,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
             )
 endif ()
 
-
+set(LINK_LIBS_threaded_epoll
+        ${BOOST_KEY_WORD}
+        )
 set(LINK_LIBS_syncronous
         ${BOOST_KEY_WORD}
         )

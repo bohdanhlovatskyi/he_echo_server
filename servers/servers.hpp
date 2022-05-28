@@ -27,6 +27,8 @@
 #include <boost/asio/write.hpp>
 #include <cstdio>
 
+#include <tbb/task_arena.h>
+
 #include <utility>
 #include <experimental/coroutine>
 
@@ -34,8 +36,8 @@
 
 class Server {
 protected:
-    const ssize_t buf_size;
     const size_t port;
+    const ssize_t buf_size;
     int listener_fd;
 public:
     inline explicit Server(size_t port, ssize_t buf_size):\
@@ -62,8 +64,8 @@ public:
 class BoostSyncronous: public Server {
     using atcp = boost::asio::ip::tcp;
 private:
-    atcp::acceptor acc;
     boost::asio::io_service& io_service;
+    atcp::acceptor acc;
 public:
     inline BoostSyncronous(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
                     Server::Server(port, buf_size),
@@ -90,8 +92,8 @@ public:
 class BoostBlockingMultiThreaded: public Server {
     using atcp = boost::asio::ip::tcp;
 private:
-    atcp::acceptor acc;
     boost::asio::io_service& io_service;
+    atcp::acceptor acc;
 
     static void session_(boost::shared_ptr<boost::asio::ip::tcp::socket> soc, size_t buf_size);
 public:
@@ -110,8 +112,8 @@ class BoostBlockingThreadPool: public Server {
     using atcp = boost::asio::ip::tcp;
     using tp_t = boost::asio::thread_pool;
 private:
-    atcp::acceptor acc;
     boost::asio::io_service& io_service;
+    atcp::acceptor acc;
     tp_t tp;
 
     static void session_(boost::shared_ptr<boost::asio::ip::tcp::socket> soc, size_t buf_size);
@@ -132,8 +134,8 @@ public:
 class BoostAsync: public Server {
     using atcp = boost::asio::ip::tcp;
 private:
-    atcp::acceptor acc;
     boost::asio::io_service& io_service;
+    atcp::acceptor acc;
 
     class session {
     private:
@@ -171,8 +173,8 @@ public:
 using coro_handle = std::experimental::coroutine_handle<>;
 class CoroBoost : public Server {
 private:
-    boost::asio::ip::tcp::acceptor acc;
     boost::asio::io_service& io_service;
+    boost::asio::ip::tcp::acceptor acc;
 
     struct Task {
         struct promise_type {
@@ -208,8 +210,7 @@ private:
         std::error_code ec_{};
     };
 
-    void accept(boost::asio::io_service& io_service,
-                size_t port, boost::asio::yield_context yield);
+    void accept();
 
     Task handle_client(boost::asio::ip::tcp::socket socket) noexcept;
 
@@ -242,8 +243,8 @@ public:
 class StackFullBoost : public Server {
     using atcp = boost::asio::ip::tcp;
 private:
-    atcp::acceptor acc;
     boost::asio::io_service& io_service;
+    atcp::acceptor acc;
 
     void accept(boost::asio::io_service& io_service,
                 size_t port, boost::asio::yield_context yield);
@@ -363,8 +364,8 @@ public:
 
 class ThreadedAsyncEpoll: public Server {
 private:
-    oneapi::tbb::task_arena arena{
-        oneapi::tbb::this_task_arena::max_concurrency()
+    tbb::task_arena arena{
+        tbb::this_task_arena::max_concurrency()
     };
 
     constexpr static short MAX_EVENTS = 32;

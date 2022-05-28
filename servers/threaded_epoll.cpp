@@ -5,6 +5,8 @@
 #include "common_sockets.hpp"
 #include "servers.hpp"
 
+// #include <boost/thread/future.hpp>
+
 // register events of fd to epfd
 void ThreadedAsyncEpoll::epoll_ctl_add(int epfd, int fd, uint32_t events) {
     struct epoll_event ev;
@@ -29,8 +31,6 @@ void ThreadedAsyncEpoll::init() {
 }
 
 void ThreadedAsyncEpoll::run() {
-    std::vector<char> buf{};
-    buf.reserve(buf_size);
 
     for (;;) {
         // If timeout equals –1, block until an event occurs for one of the file descriptors in
@@ -45,13 +45,21 @@ void ThreadedAsyncEpoll::run() {
                 // adding new socket to epoll interest list
                 epoll_ctl_add(epfd, socket_descriptor, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR);
             } else if (events[i].events & EPOLLIN) {
-                arena.execute([&events](){
+                // boost::promise<bool> p;
+                // auto f = p.get_future().then([](){});
+
+                arena.execute([&](){
+                    std::vector<char> buf{};
+                    buf.reserve(buf_size);
+
                     auto bytes_read = read_msg(events[i].data.fd, buf.data(), buf_size);
                     if (bytes_read > 0) {
                         std::cout << "input msg: " << buf.data() << std::endl;
                         write_msg(events[i].data.fd, buf.data(), bytes_read);
                     } else {
-                        epoll_ctl(epfd, EPOLL_CTL_DEL,events[i].data.fd, NULL);
+                        // p.set_value(true);
+                        // !!! Can it go data race ? 
+                        epoll_ctl(epfd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
                         close(events[i].data.fd);
                     }
                 });

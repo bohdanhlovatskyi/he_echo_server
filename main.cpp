@@ -18,35 +18,42 @@ int main(int argc, char *argv[]) {
     }
 
     boost::asio::io_service io;
+
+    Server* server;
+
 #ifdef TARGET_SYNCRONOUS
-    auto server = Syncronous{port, BUF_SIZE};
+     server = new Syncronous{port, BUF_SIZE};
 #elif TARGET_THREADED
-    auto server = BlockingMultiThreaded{port, BUF_SIZE};
+     server = new BlockingMultiThreaded{port, BUF_SIZE};
 #elif TARGET_MULTIPROCESS
-    auto server = BlockingMultiProcess{port, BUF_SIZE};
+     server = new BlockingMultiProcess{port, BUF_SIZE};
 #elif TARGET_SELECT
-    auto server = AsyncSelect{port, BUF_SIZE};
+     server = new AsyncSelect{port, BUF_SIZE};
 #elif TARGET_BOOST_SYNCRONOUS
-    auto server = BoostSyncronous{port, BUF_SIZE, io};
+     server = new BoostSyncronous{port, BUF_SIZE, io};
 #elif TARGET_BOOST_THREADED
-    auto server = BoostBlockingMultiThreaded{port, BUF_SIZE, io};
+     server = new BoostBlockingMultiThreaded{port, BUF_SIZE, io};
 #elif TARGET_BOOST_THREAD_POOL
-    auto server = BoostBlockingThreadPool{port, BUF_SIZE, io};
+     server = new BoostBlockingThreadPool{port, BUF_SIZE, io};
 #elif TARGET_BOOST_ASYNC
-    auto server = BoostAsync{port, BUF_SIZE, io};
+     server = new BoostAsync{port, BUF_SIZE, io};
 #elif TARGET_CORO_BOOST
-    auto server = CoroBoost{port, BUF_SIZE, io};
+     server = new CoroBoost{port, BUF_SIZE, io};
 #elif TARGET_STACKFUL
-    auto server = StackFullBoost{port, BUF_SIZE, io};
+     server = new StackFullBoost{port, BUF_SIZE, io};
 #elif TARGET_STACKLESS
-    auto server = StacklessBoost{port, BUF_SIZE, io};
+    server = new StacklessBoost{port, BUF_SIZE, io};
 #elif TARGET_EPOLL
 #ifdef __linux__
-    auto server = AsyncEpoll{port, BUF_SIZE});
+    server = new AsyncEpoll{port, BUF_SIZE};
+#endif
+#elif TARGET_THREADED_EPOLL
+#ifdef __linux__
+    server = new ThreadedAsyncEpoll{port, BUF_SIZE};
 #endif
 #elif TARGET_IO_SUBMIT
 #ifdef __linux__
-    auto server = AsyncIOSubmit{port, BUF_SIZE});
+    server = new AsyncIOSubmit{port, BUF_SIZE};
 #endif
 #else
     std::cerr << "No valid compile target defined!" << std::endl;
@@ -54,8 +61,8 @@ int main(int argc, char *argv[]) {
 #endif
 
     try {
-        server.init();
-        server.run();
+        server->init();
+        server->run();
         io.run();
     } catch (std::runtime_error &e) {
         std::cerr << "Fatal: " << e.what() << std::endl;
