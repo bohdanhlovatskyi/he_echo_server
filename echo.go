@@ -1,45 +1,35 @@
 package main
 
+// taken from https://dev.to/0xbf/golang-a-simple-echo-server-1den
+// as a little benchmark of adequacy for out servers
 import (
-	"bufio"
-	"fmt"
-	"log"
-	"net"
-)
-
-const (
-	port = 9000
-	addr = "localhost:"
+    "io"
+    "log"
+    "net"
 )
 
 func main() {
-	server, err := net.Listen("tcp", addr+fmt.Sprint(port))
-	if err != nil {
-		log.Fatalln("could not start server: ", err)
-	}
-	defer server.Close()
+    addr := "localhost:9000"
+    server, err := net.Listen("tcp", addr)
+    if err != nil {
+        log.Fatalln(err)
+    }
+    defer server.Close()
 
-	for {
-		conn, err := server.Accept()
-		if err != nil {
-			log.Println("failed to accept connection: ", err)
-			continue
-		}
+    // log.Println("Server is running on:", addr)
 
-		go func(conn net.Conn) {
-			defer conn.Close()
+    for {
+        conn, err := server.Accept()
+        if err != nil {
+            log.Println("Failed to accept conn.", err)
+            continue
+        }
 
-            b := bufio.NewReader(conn)
-            for {
-                        line, err := b.ReadBytes('\n')
-            			if err != nil {
-            				return
-            			}
-
-            			// or this can be done via io.copy()
-            			conn.Write(line)
-            }
-
-		}(conn)
-	}
+        go func(conn net.Conn) {
+            defer func() {
+                conn.Close()
+            }()
+            io.Copy(conn, conn)
+        }(conn)
+    }
 }
