@@ -20,7 +20,7 @@ void BlockingMultiThreaded::run() {
     for (;;) {
         auto sd = handle_connection(listener_fd, true);
 
-        std::thread t([](auto sd, auto size, std::mutex& m){
+        std::thread t([](auto sd, auto size){
             std::vector<char> buf;
             buf.reserve(size);
 
@@ -34,7 +34,7 @@ void BlockingMultiThreaded::run() {
                     break;
                 }
             }
-        }, sd, buf_size, std::ref(m));
+        }, sd, buf_size);
 
         t.detach();
     }

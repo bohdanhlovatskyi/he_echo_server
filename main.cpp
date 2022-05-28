@@ -22,7 +22,7 @@ void sock_num_set_max_limit() {
     }
 
     g_socket_num_limit = static_cast<size_t>(limit.rlim_cur);
-    std::cerr << "Set server max connections num: " << g_socket_num_limit;
+    // std::cerr << "Set server max connections num: " << g_socket_num_limit;
 }
 
 int main(int argc, char *argv[]) {
@@ -49,6 +49,8 @@ int main(int argc, char *argv[]) {
      server = new BlockingMultiThreaded{port, BUF_SIZE};
 #elif TARGET_MULTIPROCESS
      server = new BlockingMultiProcess{port, BUF_SIZE};
+#elif TARGET_BOOST_ASYNC_MULTITHREADED
+     server = new BoostAsyncMultiThreaded{port, BUF_SIZE, io};
 #elif TARGET_SELECT
      server = new AsyncSelect{port, BUF_SIZE};
 #elif TARGET_BOOST_SYNCRONOUS

@@ -173,6 +173,49 @@ public:
     ~BoostAsync() = default;
 };
 
+
+class BoostAsyncMultiThreaded: public Server {
+    using atcp = boost::asio::ip::tcp;
+private:
+    constexpr static size_t thread_pool_size = 8;
+
+    boost::asio::io_service& io_service;
+    atcp::acceptor acc;
+    std::vector<std::unique_ptr<std::thread>> thread_pool_;
+
+    class session {
+    private:
+        atcp::socket socket_;
+        enum { max_length = 1024 };
+        char data_[max_length];
+
+    public:
+        session(boost::asio::io_service& io_service)
+                : socket_(io_service) {}
+
+        inline atcp::socket& socket() {
+            return socket_;
+        }
+
+        void start();
+        void handle_write(const boost::system::error_code& error);
+        void handle_read(const boost::system::error_code& error, size_t bytes_transferred);
+    };
+
+    void handle_accept(session* new_session, const boost::system::error_code& error);
+
+public:
+    BoostAsyncMultiThreaded(size_t port, ssize_t buf_size, boost::asio::io_service& io): \
+                        Server::Server(port, buf_size),
+                        io_service{io},
+                        acc{io, atcp::endpoint( atcp::v4(), port)} {};
+
+    void init() override;
+    void run() override;
+
+    ~BoostAsyncMultiThreaded() = default;
+};
+
 using coro_handle = std::experimental::coroutine_handle<>;
 class CoroBoost : public Server {
 private:

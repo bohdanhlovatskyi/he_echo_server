@@ -15,7 +15,6 @@ ssize_t AsyncSelect::read_(int fd, fd_state* state) {
         std::cerr << std::strerror(errno) << std::endl;
     }
 
-    std::cerr << bytes_read << std::endl;
     return bytes_read;
 }
 

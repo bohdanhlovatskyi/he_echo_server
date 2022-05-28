@@ -69,7 +69,6 @@ find_package(TBB REQUIRED)
 
 #! Specify targets
 set(SERVER_TARGETS
-        threaded_epoll
         syncronous
         threaded
         multiprocess
@@ -79,6 +78,7 @@ set(SERVER_TARGETS
         boost_threaded
         boost_async
         boost_thread_pool
+        boost_async_multithreaded
         coro_boost
         stackful
         stackless
@@ -86,56 +86,11 @@ set(SERVER_TARGETS
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     list(APPEND SERVER_TARGETS
+            threaded_epoll
             epoll
             io_submit
             )
 endif ()
-
-set(LINK_LIBS_threaded_epoll
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_syncronous
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_threaded
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_multiprocess
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_select
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_common_sockets
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_boost_syncronous
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_boost_threaded
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_boost_async
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_boost_thread_pool
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_coro_boost
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_stackful
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_stackless
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_epoll
-        ${BOOST_KEY_WORD}
-        )
-set(LINK_LIBS_io_submit
-        ${BOOST_KEY_WORD}
-        )
 
 #! Project executables source compilation
 foreach (TARGET ${SERVER_TARGETS})
