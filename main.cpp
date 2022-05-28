@@ -5,9 +5,29 @@
 
 constexpr ssize_t BUF_SIZE = 1024;
 
+void sock_num_set_max_limit() {
+    rlimit limit{};
+
+    if (getrlimit(RLIMIT_NOFILE, &limit) != 0) {
+        std::cerr << "syscall getrlimit failed";
+        exit(1);
+    }
+    auto g_socket_num_limit = static_cast<size_t>(limit.rlim_cur);
+    limit.rlim_cur = limit.rlim_max;
+
+    if (setrlimit(RLIMIT_NOFILE, &limit) != 0) {
+        std::cerr << "Set server max connections num: " << g_socket_num_limit;
+        std::cerr << "syscall getrlimit failed";
+        exit(2);
+    }
+
+    g_socket_num_limit = static_cast<size_t>(limit.rlim_cur);
+    std::cerr << "Set server max connections num: " << g_socket_num_limit;
+}
+
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: start_server <port> <method>\n";
+    if (argc != 2) {
+        std::cerr << "Usage: start_server <port>\n";
         return 1;
     }
 
@@ -16,6 +36,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error: wrong port specified" << std::endl;
         return 2;
     }
+
+    sock_num_set_max_limit();
 
     boost::asio::io_service io;
 

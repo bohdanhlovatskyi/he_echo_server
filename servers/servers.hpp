@@ -10,6 +10,9 @@
 #include <thread>
 #include <cassert>
 #include <cstring>
+#include <cstddef>
+
+#include <sys/resource.h>
 
 #include <cstdlib>
 #include <boost/bind.hpp>
