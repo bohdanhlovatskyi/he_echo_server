@@ -1,0 +1,3 @@
+#!/bin/bash
+rm -f threaded_epoll/server_threaded_epoll_9.log
+while true; do (echo time,rMb,wMb >> threaded_epoll/server_threaded_epoll_9.log) && (nicstat -M | grep enp43s0 | tr -s ' ' | cut -d ' ' -f 1,3,4 >> threaded_epoll/server_threaded_epoll_9.log) && (echo %CPU,%MU >> threaded_epoll/server_threaded_epoll_9.log) && (top -p $(pidof threaded_epoll | tr ' ' ',') | head -8 | tail -1 | tr -s '  ' | cut -d ' ' -f 10 >> threaded_epoll/server_threaded_epoll_9.log) && (pmap $(pidof threaded_epoll | tr ' ' ',') | tail -1 | tr -s '  ' | cut -d ' ' -f 3 >> threaded_epoll/server_threaded_epoll_9.log) && (echo '' >> threaded_epoll/server_threaded_epoll_9.log); sleep 1; done

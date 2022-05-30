@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-    addr := "localhost:9000"
+    addr := "192.168.0.101:9000"
     server, err := net.Listen("tcp", addr)
     if err != nil {
         log.Fatalln(err)
